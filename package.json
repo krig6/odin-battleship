@@ -1,11 +1,11 @@
 {
   "name": "my-webpack-template",
   "version": "1.0.0",
-  "description": "Welcome to the Webpack Template! 🎉 This template provides a solid foundation for starting a modern JavaScript project with Webpack, including development and production setups.",
+  "description": "Classic Battleship game built using Test-Driven Development (TDD) with JavaScript",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack serve --config webpack.dev.js",
     "deploy": "gh-pages -d dist",
@@ -21,6 +21,7 @@
     "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
     "html-webpack-plugin": "^5.6.3",
+    "jest": "^29.7.0",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.14",
     "webpack": "^5.98.0",
