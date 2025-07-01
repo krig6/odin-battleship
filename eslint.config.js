@@ -23,6 +23,14 @@ export default [
     }
   },
   {
+    files: ['**/*.test.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest
+      }
+    }
+  },
+  {
     ignores: ['dist/**', 'node_modules/**', 'webpack.*.js']
   }
 ];
