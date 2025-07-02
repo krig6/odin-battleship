@@ -21,3 +21,16 @@ it('increments hits count when hit() is called', () => {
   expect(submarine.hits).toBe(1);
 });
 
+it('returns true when all segments have been hit', () => {
+  const patrolBoat = new Ship('patrol boat', 2);
+  patrolBoat.hit();
+  patrolBoat.hit();
+  expect(patrolBoat.isSunk).toBe(true);
+});
+
+it('returns false when hits are less than the ship length', () => {
+  const carrier = new Ship('carrier', 5);
+  carrier.hit();
+  expect(carrier.isSunk).toBe(false);
+});
+
