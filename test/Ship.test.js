@@ -15,3 +15,9 @@ it('initializes hits to 0 when created', () => {
   expect(carrier.hits).toBe(0);
 });
 
+it('increments hits count when hit() is called', () => {
+  const submarine = new Ship('submarine', 3);
+  submarine.hit();
+  expect(submarine.hits).toBe(1);
+});
+
