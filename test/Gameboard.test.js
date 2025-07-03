@@ -13,3 +13,9 @@ it('creates a board with the correct dimensions', () => {
     expect(row.length).toBe(10);
   });
 });
+
+it('correctly places the ship on the specified coordinates', () => {
+  const board = new Gameboard();
+  board.placeShip(1, 2, 'carrier');
+  expect(board.board[1][2]).toBe('carrier');
+});
