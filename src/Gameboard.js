@@ -12,6 +12,10 @@ class Gameboard {
     return board;
   }
 
+  placeShip(x, y, type) {
+    this.board[x][y] = type;
+  }
+
 }
 
 export default Gameboard;
