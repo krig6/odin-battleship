@@ -33,3 +33,12 @@ it('correctly places the ship vertically', () => {
   expect(board.board[6][7]).toBe('destroyer');
   expect(board.board[7][7]).toBe('destroyer');
 });
+
+it('throws an error when placing a ship with invalid starting indices', () => {
+  const board = new Gameboard();
+
+  expect(() => board.placeShip(-1, 5, 'destroyer', 3, 'horizontal')).toThrow('Invalid starting coordinates: position is outside the board.');
+  expect(() => board.placeShip(5, -2, 'destroyer', 3, 'horizontal')).toThrow('Invalid starting coordinates: position is outside the board.');
+  expect(() => board.placeShip(10, 0, 'destroyer', 3, 'horizontal')).toThrow('Invalid starting coordinates: position is outside the board.');
+  expect(() => board.placeShip(0, 10, 'destroyer', 3, 'vertical')).toThrow('Invalid starting coordinates: position is outside the board.');
+});
