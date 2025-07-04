@@ -12,8 +12,14 @@ class Gameboard {
     return board;
   }
 
-  placeShip(x, y, type) {
-    this.board[x][y] = type;
+  placeShip(x, y, type, length = 1, direction = 'horizontal') {
+    for (let i = 0; i < length; i++) {
+      if (direction === 'horizontal') {
+        this.board[x][y + i] = type;
+      } else {
+        this.board[x + i][y] = type;
+      }
+    }
   }
 
 }
