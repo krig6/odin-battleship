@@ -17,6 +17,14 @@ class Gameboard {
       throw new Error('Invalid starting coordinates: position is outside the board.');
     }
 
+    if (direction === 'horizontal' && (y + length) > this.boardSize) {
+      throw new Error('Ship placement exceeds board boundaries.');
+    }
+
+    if (direction === 'vertical' && (x + length) > this.boardSize) {
+      throw new Error('Ship placement exceeds board boundaries.');
+    }
+
     for (let i = 0; i < length; i++) {
       if (direction === 'horizontal') {
         this.board[x][y + i] = type;
