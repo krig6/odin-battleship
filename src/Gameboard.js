@@ -38,6 +38,10 @@ class Gameboard {
     }
   }
 
+  receiveAttack(x, y) {
+    this.board[x][y].hit();
+  }
+
 }
 
 export default Gameboard;
