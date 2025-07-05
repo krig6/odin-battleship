@@ -3,6 +3,7 @@ class Gameboard {
     this.boardSize = boardSize;
     this.board = this.initializeBoard();
     this.missedShots = new Set();
+    this.successfulHits = new Set();
   }
 
   initializeBoard() {
@@ -44,6 +45,7 @@ class Gameboard {
       this.missedShots.add(`${x},${y}`);
     } else {
       this.board[x][y].hit();
+      this.successfulHits.add(`${x},${y}`);
     }
   }
 
