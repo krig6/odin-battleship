@@ -73,3 +73,10 @@ it('increments ship hit count when attack targets ship coordinates', () => {
   expect(battleship.hits).toBe(1);
 });
 
+it('records missed shots when attacking an empty cell', () => {
+  const board = new Gameboard();
+  const submarine = new Ship('submarine', 2);
+  board.placeShip(0, 0, submarine);
+  board.receiveAttack(6, 4);
+  expect(board.missedShots.has('6,4')).toBe(true);
+});
