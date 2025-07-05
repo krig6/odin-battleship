@@ -64,3 +64,12 @@ it('throws an error when direction is not "horizontal" or "vertical"', () => {
   const destroyer = new Ship('destroyer', 3);
   expect(() => board.placeShip(9, 1, destroyer, 'up')).toThrow('Invalid direction specified. Must be horizontal or vertical.');
 });
+
+it('increments ship hit count when attack targets ship coordinates', () => {
+  const board = new Gameboard();
+  const battleship = new Ship('battleship', 4);
+  board.placeShip(3, 4, battleship, 'vertical');
+  board.receiveAttack(6, 4);
+  expect(battleship.hits).toBe(1);
+});
+
