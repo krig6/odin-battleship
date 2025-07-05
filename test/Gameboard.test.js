@@ -97,3 +97,12 @@ it('throws an error when attacking a cell that has already been targeted', () =>
   expect(board.successfulHits.has('6,4')).toBe(true);
   expect(() => board.receiveAttack(6, 4)).toThrow('This cell has already been attacked.');
 });
+
+it('throws an error when attacking a cell that was previously marked as a miss', () => {
+  const board = new Gameboard();
+  const carrier = new Ship('carrier', 5);
+  board.placeShip(3, 4, carrier, 'vertical');
+  board.receiveAttack(2, 4);
+  expect(board.missedShots.has('2,4')).toBe(true);
+  expect(() => board.receiveAttack(2, 4)).toThrow('This cell has already been attacked.');
+});
