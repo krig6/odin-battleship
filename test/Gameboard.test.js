@@ -88,3 +88,12 @@ it('records successful hits when attacking a ship', () => {
   board.receiveAttack(9, 6);
   expect(board.successfulHits.has('9,6')).toBe(true);
 });
+
+it('throws an error when attacking a cell that has already been targeted', () => {
+  const board = new Gameboard();
+  const carrier = new Ship('carrier', 5);
+  board.placeShip(3, 4, carrier, 'vertical');
+  board.receiveAttack(6, 4);
+  expect(board.successfulHits.has('6,4')).toBe(true);
+  expect(() => board.receiveAttack(6, 4)).toThrow('This cell has already been attacked.');
+});
