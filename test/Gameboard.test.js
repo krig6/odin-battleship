@@ -80,3 +80,11 @@ it('records missed shots when attacking an empty cell', () => {
   board.receiveAttack(6, 4);
   expect(board.missedShots.has('6,4')).toBe(true);
 });
+
+it('records successful hits when attacking a ship', () => {
+  const board = new Gameboard();
+  const destroyer = new Ship('destroyer', 3);
+  board.placeShip(7, 6, destroyer, 'vertical');
+  board.receiveAttack(9, 6);
+  expect(board.successfulHits.has('9,6')).toBe(true);
+});
