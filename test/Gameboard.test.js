@@ -58,3 +58,9 @@ it('throws an error when placing a ship vertically beyond the board boundaries',
   const destroyer = new Ship('destroyer', 3);
   expect(() => board.placeShip(9, 1, destroyer, 'vertical')).toThrow('Ship placement exceeds board boundaries.');
 });
+
+it('throws an error when direction is not "horizontal" or "vertical"', () => {
+  const board = new Gameboard();
+  const destroyer = new Ship('destroyer', 3);
+  expect(() => board.placeShip(9, 1, destroyer, 'up')).toThrow('Invalid direction specified. Must be horizontal or vertical.');
+});
