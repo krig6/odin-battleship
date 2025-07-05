@@ -12,24 +12,24 @@ class Gameboard {
     return board;
   }
 
-  placeShip(x, y, type, length = 1, direction = 'horizontal') {
+  placeShip(x, y, ship, direction = 'horizontal') {
     if ((x < 0 || x >= this.boardSize) || (y < 0 || y >= this.boardSize)) {
       throw new Error('Invalid starting coordinates: position is outside the board.');
     }
 
-    if (direction === 'horizontal' && (y + length) > this.boardSize) {
+    if (direction === 'horizontal' && (y + ship.length) > this.boardSize) {
       throw new Error('Ship placement exceeds board boundaries.');
     }
 
-    if (direction === 'vertical' && (x + length) > this.boardSize) {
+    if (direction === 'vertical' && (x + ship.length) > this.boardSize) {
       throw new Error('Ship placement exceeds board boundaries.');
     }
 
-    for (let i = 0; i < length; i++) {
-      if (direction === 'horizontal') {
-        this.board[x][y + i] = type;
+    for (let i = 0; i < ship.length; i++) {
+      if (direction === 'vertical') {
+        this.board[x + i][y] = ship;
       } else {
-        this.board[x + i][y] = type;
+        this.board[x][y + i] = ship;
       }
     }
   }
