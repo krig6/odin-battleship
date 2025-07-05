@@ -2,6 +2,7 @@ class Gameboard {
   constructor(boardSize = 10) {
     this.boardSize = boardSize;
     this.board = this.initializeBoard();
+    this.missedShots = new Set();
   }
 
   initializeBoard() {
@@ -39,9 +40,12 @@ class Gameboard {
   }
 
   receiveAttack(x, y) {
-    this.board[x][y].hit();
+    if (this.board[x][y] === null) {
+      this.missedShots.add(`${x},${y}`);
+    } else {
+      this.board[x][y].hit();
+    }
   }
 
 }
-
 export default Gameboard;
