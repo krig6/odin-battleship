@@ -65,6 +65,14 @@ it('throws an error when direction is not "horizontal" or "vertical"', () => {
   expect(() => board.placeShip(9, 1, destroyer, 'up')).toThrow('Invalid direction specified. Must be horizontal or vertical.');
 });
 
+it('throws an error when attempting to place a ship overlapping an existing ship', () => {
+  const board = new Gameboard();
+  const submarine = new Ship('submarine', 2);
+  board.placeShip(3, 4, submarine);
+  const battleship = new Ship('battleship', 4);
+  expect(() => board.placeShip(3, 5, battleship)).toThrow('Invalid placement: overlapping with another ship.');
+});
+
 it('increments ship hit count when attack targets ship coordinates', () => {
   const board = new Gameboard();
   const battleship = new Ship('battleship', 4);
