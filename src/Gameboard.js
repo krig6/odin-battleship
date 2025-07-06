@@ -4,6 +4,7 @@ class Gameboard {
     this.board = this.initializeBoard();
     this.missedShots = new Set();
     this.successfulHits = new Set();
+    this.shipPositions = new Set();
   }
 
   initializeBoard() {
@@ -33,9 +34,23 @@ class Gameboard {
 
     for (let i = 0; i < ship.length; i++) {
       if (direction === 'vertical') {
+        if (this.shipPositions.has(`${x + i},${y}`)) {
+          throw new Error('Invalid placement: overlapping with another ship.');
+        }
+      } else {
+        if (this.shipPositions.has(`${x},${y + i}`)) {
+          throw new Error('Invalid placement: overlapping with another ship.');
+        }
+      }
+    }
+
+    for (let i = 0; i < ship.length; i++) {
+      if (direction === 'vertical') {
         this.board[x + i][y] = ship;
+        this.shipPositions.add(`${x + i},${y}`);
       } else {
         this.board[x][y + i] = ship;
+        this.shipPositions.add(`${x},${y + i}`);
       }
     }
   }
