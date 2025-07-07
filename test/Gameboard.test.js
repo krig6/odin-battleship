@@ -128,3 +128,27 @@ it('returns "hit" when attacking a coordinate occupied by a ship', () => {
   board.placeShip(7, 6, destroyer, 'vertical');
   expect(board.receiveAttack(9, 6)).toBe('hit');
 });
+
+it('returns true if all ships are sunk', () => {
+  const board = new Gameboard();
+  const submarine = new Ship('submarine', 2);
+  board.placeShip(9, 0, submarine);
+  board.receiveAttack(9, 0);
+  board.receiveAttack(9, 1);
+  expect(board.allShipsSunk).toBe(true);
+});
+
+it('returns false when not all ships are sunk', () => {
+  const board = new Gameboard();
+  const carrier = new Ship('carrier', 5);
+  board.placeShip(9, 0, carrier);
+  board.receiveAttack(9, 0);
+  board.receiveAttack(9, 1);
+  board.receiveAttack(9, 4);
+  expect(board.allShipsSunk).toBe(false);
+});
+
+it('throws an error when checking sunk status with no ships placed', () => {
+  const board = new Gameboard();
+  expect(() => board.allShipsSunk).toThrow('No ships have been placed on the board.');
+});
