@@ -114,3 +114,17 @@ it('throws an error when attacking a cell that was previously marked as a miss',
   expect(board.missedShots.has('2,4')).toBe(true);
   expect(() => board.receiveAttack(2, 4)).toThrow('This cell has already been attacked.');
 });
+
+it('returns "miss" when attacking a coordinate with no ship', () => {
+  const board = new Gameboard();
+  const submarine = new Ship('submarine', 2);
+  board.placeShip(0, 0, submarine);
+  expect(board.receiveAttack(6, 4)).toBe('miss');
+});
+
+it('returns "hit" when attacking a coordinate occupied by a ship', () => {
+  const board = new Gameboard();
+  const destroyer = new Ship('destroyer', 3);
+  board.placeShip(7, 6, destroyer, 'vertical');
+  expect(board.receiveAttack(9, 6)).toBe('hit');
+});
