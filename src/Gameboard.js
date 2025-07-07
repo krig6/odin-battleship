@@ -58,13 +58,18 @@ class Gameboard {
   receiveAttack(x, y) {
     if (this.successfulHits.has(`${x},${y}`) || this.missedShots.has(`${x},${y}`)) {
       throw new Error('This cell has already been attacked.');
-    } else if (this.board[x][y] === null) {
-      this.missedShots.add(`${x},${y}`);
-    } else {
-      this.board[x][y].hit();
-      this.successfulHits.add(`${x},${y}`);
     }
+
+    if (this.board[x][y] === null) {
+      this.missedShots.add(`${x},${y}`);
+      return 'miss';
+    }
+
+    this.board[x][y].hit();
+    this.successfulHits.add(`${x},${y}`);
+    return 'hit';
   }
 
 }
+
 export default Gameboard;
