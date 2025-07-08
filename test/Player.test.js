@@ -14,3 +14,8 @@ it('defaults isComputer to false', () => {
   const player = new Player();
   expect(player.isComputer).toBe(false);
 });
+
+it('assigns a new gameboard to each player', () => {
+  const player = new Player();
+  expect(player.board).toBeDefined();
+});
