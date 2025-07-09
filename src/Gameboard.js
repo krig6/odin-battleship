@@ -81,6 +81,9 @@ class Gameboard {
     return this.fleet.every(ship => ship.isSunk);
   }
 
+  getGrid() {
+    return this.board;
+  }
 }
 
 export default Gameboard;
