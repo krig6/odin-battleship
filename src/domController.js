@@ -25,7 +25,12 @@ const renderGameboardGrid = (player, container) => {
       if (cellValue) {
         cellElement.classList.add('ship');
       }
+
       container.appendChild(cellElement);
     }
   }
+};
+
+export const updatePlayerGameBoard = (player, container) => {
+  renderGameboardGrid(player, container);
 };
