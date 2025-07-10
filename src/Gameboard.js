@@ -5,7 +5,7 @@ class Gameboard {
     this.missedShots = new Set();
     this.successfulHits = new Set();
     this.shipPositions = new Set();
-    this.fleet = [];
+    this.fleet = {};
   }
 
   initializeBoard() {
@@ -45,6 +45,10 @@ class Gameboard {
       }
     }
 
+    if (!this.fleet[ship.type]) {
+      this.fleet[ship.type] = ship;
+    }
+
     for (let i = 0; i < ship.length; i++) {
       if (direction === 'vertical') {
         this.board[x + i][y] = ship;
@@ -54,8 +58,6 @@ class Gameboard {
         this.shipPositions.add(`${x},${y + i}`);
       }
     }
-
-    this.fleet.push(ship);
   }
 
   receiveAttack(x, y) {
@@ -74,16 +76,17 @@ class Gameboard {
   }
 
   get allShipsSunk() {
-    if (this.fleet.length === 0) {
+    if (Object.values(this.fleet).length === 0) {
       throw new Error('No ships have been placed on the board.');
     }
 
-    return this.fleet.every(ship => ship.isSunk);
+    return Object.values(this.fleet).every(ship => ship.isSunk);
   }
 
   getGrid() {
     return this.board;
   }
+
 }
 
 export default Gameboard;
