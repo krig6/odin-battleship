@@ -33,3 +33,16 @@ const initialFleetPlacement = () => {
   updatePlayerGameBoard(player1, player1Board);
 };
 
+const handleAttacks = () => {
+  player1Board.addEventListener('click', (e) => {
+    const cell = e.target;
+    if (!cell.classList.contains('cell')) return;
+
+    const row = cell.dataset.row;
+    const col = cell.dataset.column;
+
+    player1.gameboard.receiveAttack(row, col);
+    updatePlayerGameBoard(player1, player1Board);
+  });
+};
+
