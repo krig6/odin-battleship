@@ -35,6 +35,13 @@ import { FLEET_CONFIG } from './fleetConfig.js';
 export const updatePlayerGameBoard = (player, container) => {
   renderGameboardGrid(player, container);
 };
+
+export const renderShipyard = () => {
+  const mainContainer = document.getElementById('main-container');
+  const shipyardElement = renderDraggableShips();
+  mainContainer.appendChild(shipyardElement);
+};
+
 const renderDraggableShips = (fleetConfig = FLEET_CONFIG) => {
   const shipyardContainer = document.createElement('div');
   shipyardContainer.classList.add('shipyard-container');
