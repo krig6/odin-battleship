@@ -1,4 +1,5 @@
 const renderGameboardGrid = (player, container) => {
+import { FLEET_CONFIG } from './fleetConfig.js';
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
   const boardGrid = player.gameboard.getGrid();
@@ -33,4 +34,24 @@ const renderGameboardGrid = (player, container) => {
 
 export const updatePlayerGameBoard = (player, container) => {
   renderGameboardGrid(player, container);
+};
+const renderDraggableShips = (fleetConfig = FLEET_CONFIG) => {
+  const shipyardContainer = document.createElement('div');
+  shipyardContainer.classList.add('shipyard-container');
+
+  for (const shipConfig of fleetConfig) {
+    const shipElement = document.createElement('div');
+    shipElement.classList.add('ship');
+    shipElement.setAttribute('draggable', true);
+
+    for (let i = 0; i < shipConfig.length; i++) {
+      const segment = document.createElement('div');
+      segment.classList.add('ship-segment');
+      shipElement.appendChild(segment);
+    }
+
+    shipyardContainer.appendChild(shipElement);
+  }
+
+  return shipyardContainer;
 };
