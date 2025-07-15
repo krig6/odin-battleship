@@ -73,3 +73,13 @@ export const renderRandomizeButton = (onClickHandler) => {
   return randomizeButton;
 };
 
+export const renderResetButton = (onClickHandler) => {
+  const resetButton = document.createElement('button');
+  resetButton.textContent = 'Reset';
+  resetButton.classList.add('reset-btn');
+
+  resetButton.addEventListener('click', onClickHandler);
+
+  return resetButton;
+};
+
