@@ -62,3 +62,14 @@ const renderDraggableShips = (fleetConfig = FLEET_CONFIG) => {
 
   return shipyardContainer;
 };
+
+export const renderRandomizeButton = (onClickHandler) => {
+  const randomizeButton = document.createElement('button');
+  randomizeButton.textContent = 'Randomize';
+  randomizeButton.classList.add('random-btn');
+
+  randomizeButton.addEventListener('click', onClickHandler);
+
+  return randomizeButton;
+};
+
