@@ -83,3 +83,12 @@ export const renderResetButton = (onClickHandler) => {
   return resetButton;
 };
 
+export const renderStartGameButton = (onClickHandler) => {
+  const startGameButton = document.createElement('button');
+  startGameButton.textContent = 'Start';
+  startGameButton.classList.add('start-game-btn');
+
+  startGameButton.addEventListener('click', onClickHandler);
+
+  return startGameButton;
+};
