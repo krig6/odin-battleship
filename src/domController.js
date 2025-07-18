@@ -1,5 +1,4 @@
-const renderGameboardGrid = (player, container) => {
-import { FLEET_CONFIG } from './fleetConfig.js';
+export const renderGameboardGrid = (player, container) => {
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
   const boardGrid = player.gameboard.getGrid();
@@ -11,6 +10,18 @@ import { FLEET_CONFIG } from './fleetConfig.js';
       cellElement.classList.add('cell');
       cellElement.dataset.row = row;
       cellElement.dataset.column = column;
+
+      cellElement.addEventListener('click', () => {
+        const shipId = cellElement.dataset.shipId;
+        if (!shipId) return;
+
+        const rotateEvent = new CustomEvent('rotate-ship', {
+          detail: { shipId },
+          bubbles: true
+        });
+
+        cellElement.dispatchEvent(rotateEvent);
+      });
 
       const cellValue = boardGrid[row][column];
       const positionKey = `${row},${column}`;
@@ -24,7 +35,8 @@ import { FLEET_CONFIG } from './fleetConfig.js';
       }
 
       if (cellValue) {
-        cellElement.classList.add('ship');
+        cellElement.classList.add(cellValue.type);
+        cellElement.dataset.shipId = cellValue.id;
       }
 
       container.appendChild(cellElement);
