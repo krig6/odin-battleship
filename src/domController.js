@@ -104,3 +104,48 @@ export const renderStartGameButton = (onClickHandler) => {
 
   return startGameButton;
 };
+
+export const enableBoardDropZones = (container) => {
+  const cells = container.querySelectorAll('.cell');
+
+  cells.forEach((cell) => {
+    cell.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    cell.addEventListener('drop', (e) => {
+      e.preventDefault();
+
+      const shipType = e.dataTransfer.getData('text/ship-type');
+      const shipLength = parseInt(e.dataTransfer.getData('text/ship-length'));
+      const orientation = e.dataTransfer.getData('text/orientation') || 'horizontal';
+      const dragOffset = parseInt(e.dataTransfer.getData('text/drag-offset')) || 0;
+
+      let startRow = parseInt(cell.dataset.row);
+      let startCol = parseInt(cell.dataset.column);
+
+      if (orientation === 'horizontal') {
+        startCol -= dragOffset;
+      } else {
+        startRow -= dragOffset;
+      }
+
+      const eventData = {
+        shipType,
+        shipLength,
+        orientation,
+        startRow,
+        startCol
+      };
+
+      const placeEvent = new CustomEvent('place-ship', {
+        detail: eventData,
+        bubbles: true
+      });
+
+      cell.dispatchEvent(placeEvent);
+    });
+  });
+};
+
