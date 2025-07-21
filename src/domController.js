@@ -54,18 +54,48 @@ export const renderShipyard = () => {
   mainContainer.appendChild(shipyardElement);
 };
 
-const renderDraggableShips = (fleetConfig = FLEET_CONFIG) => {
+const createDraggableShips = (fleetConfig) => {
   const shipyardContainer = document.createElement('div');
   shipyardContainer.classList.add('shipyard-container');
 
-  for (const shipConfig of fleetConfig) {
+  for (const ship of Object.values(fleetConfig)) {
     const shipElement = document.createElement('div');
     shipElement.classList.add('ship');
     shipElement.setAttribute('draggable', true);
+    shipElement.dataset.type = ship.type;
+    shipElement.dataset.length = ship.length;
 
-    for (let i = 0; i < shipConfig.length; i++) {
+    let orientation = 'horizontal';
+    let dragOffset = 0;
+
+    shipElement.addEventListener('mousedown', (e) => {
+      const part = e.target.closest('.ship-segment');
+      dragOffset = part ? [...part.parentNode.children].indexOf(part) : 0;
+      shipElement.dataset.offset = dragOffset;
+    });
+
+    shipElement.addEventListener('click', () => {
+      orientation = orientation === 'horizontal' ? 'vertical' : 'horizontal';
+      shipElement.classList.toggle('vertical');
+      shipElement.dataset.orientation = orientation;
+    });
+
+    shipElement.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/ship-type', ship.type);
+      e.dataTransfer.setData('text/ship-length', ship.length);
+      e.dataTransfer.setData('text/orientation', orientation);
+      e.dataTransfer.setData('text/drag-offset', dragOffset);
+      e.dataTransfer.effectAllowed = 'move';
+      shipElement.classList.add('dragging');
+    });
+
+    shipElement.addEventListener('dragend', () => {
+      shipElement.classList.remove('dragging');
+    });
+
+    for (let i = 0; i < ship.length; i++) {
       const segment = document.createElement('div');
-      segment.classList.add('ship-segment');
+      segment.classList.add('ship-segment', ship.type);
       shipElement.appendChild(segment);
     }
 
@@ -79,7 +109,6 @@ export const renderRandomizeButton = (onClickHandler) => {
   const randomizeButton = document.createElement('button');
   randomizeButton.textContent = 'Randomize';
   randomizeButton.classList.add('random-btn');
-
   randomizeButton.addEventListener('click', onClickHandler);
 
   return randomizeButton;
