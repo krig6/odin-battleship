@@ -1,6 +1,12 @@
 import Player from './Player.js';
 import Ship from './Ship.js';
 import { updatePlayerGameBoard } from './domController.js';
+import {
+  enableBoardDropZones,
+  renderGameboardGrid,
+  renderDockLayout,
+} from './domController.js';
+
 const player1 = new Player();
 const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
@@ -18,6 +24,14 @@ const createFleet = (fleetData = FLEET_CONFIG) => {
   fleetData.forEach(({ type, length }) => {
     fleet[type] = new Ship(type, length);
   });
+
+
+
+export const setupPlayerOnePlacementScreen = () => {
+  const fleet = createFleet(player1);
+  renderGameboardGrid(player1, player1Board);
+  renderDockLayout(fleet, randomFleetPlacement, resetBoard, startGame);
+  enableBoardDropZones(player1Board);
 };
 
 const initialFleetPlacement = () => {
