@@ -57,6 +57,69 @@ player1Board.addEventListener('place-ship', (e) => {
   }
 });
 
+const attemptToRotateShip = (gameboard, shipId) => {
+  const board = gameboard.board;
+
+  const shipCells = [...gameboard.shipPositions]
+    .map(coordinate => coordinate.split(',').map(Number))
+    .filter(([r, c]) => board[r][c]?.id === shipId);
+
+  if (shipCells.length === 0) return false;
+
+  const [r, c] = shipCells[0];
+  const ship = board[r][c];
+  const originalOrientation = ship.orientation;
+
+  const originalBoard = board.map(row => [...row]);
+  const originalShipPositions = new Set(gameboard.shipPositions);
+
+  if (shipCells.length === 1) {
+    board[r][c] = null;
+    gameboard.shipPositions.delete(`${r},${c}`);
+
+    const newOrientation = originalOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+    try {
+      gameboard.placeShip(r, c, ship, newOrientation);
+      return true;
+    } catch (err) {
+      gameboard.board = originalBoard;
+      gameboard.shipPositions = originalShipPositions;
+      ship.orientation = originalOrientation;
+      return false;
+    }
+  }
+
+  const isHorizontal = shipCells[0][0] === shipCells[1][0];
+  const sorted = shipCells.sort((a, b) => isHorizontal ? a[1] - b[1] : a[0] - b[0]);
+
+  const midIndex = Math.floor(sorted.length / 2);
+  const [pivotRow, pivotCol] = sorted[midIndex];
+
+  let startRow = pivotRow;
+  let startCol = pivotCol;
+  const newOrientation = isHorizontal ? 'vertical' : 'horizontal';
+
+  if (newOrientation === 'horizontal') {
+    startCol = pivotCol - midIndex;
+  } else {
+    startRow = pivotRow - midIndex;
+  }
+
+  for (const [r, c] of sorted) {
+    board[r][c] = null;
+    gameboard.shipPositions.delete(`${r},${c}`);
+  }
+  try {
+    gameboard.placeShip(startRow, startCol, ship, newOrientation);
+    return true;
+  } catch (err) {
+    gameboard.board = originalBoard;
+    gameboard.shipPositions = originalShipPositions;
+    ship.orientation = originalOrientation;
+    return false;
+  }
+};
+
   for (const type in fleet) {
     const ship = fleet[type];
     player1.gameboard.placeShip(row, 0, ship);
