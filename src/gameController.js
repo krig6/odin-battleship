@@ -1,16 +1,17 @@
 import Player from './Player.js';
 import Ship from './Ship.js';
-import { updatePlayerGameBoard } from './domController.js';
 import {
   enableBoardDropZones,
   renderGameboardGrid,
   renderDockLayout,
+  updatePlayerGameBoard
 } from './domController.js';
 
 const player1 = new Player();
 const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
+
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
   { type: 'battleship', length: 4 },
@@ -37,6 +38,24 @@ export const setupPlayerOnePlacementScreen = () => {
 const initialFleetPlacement = () => {
   const fleet = player1.gameboard.fleet;
   let row = 0;
+player1Board.addEventListener('place-ship', (e) => {
+  const { shipType, startRow, startCol, orientation } = e.detail;
+
+  try {
+    const ship = player1.gameboard.fleet[shipType];
+
+    player1.gameboard.placeShip(startRow, startCol, ship, orientation);
+    updatePlayerGameBoard(player1, player1Board);
+    enableBoardDropZones(player1Board);
+
+    const shipElement = document.querySelector(`.ship[data-type="${shipType}"]`);
+    if (shipElement) {
+      shipElement.remove();
+    }
+  } catch (err) {
+    alert(err.message);
+  }
+});
 
   for (const type in fleet) {
     const ship = fleet[type];
