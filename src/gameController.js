@@ -20,13 +20,16 @@ const FLEET_CONFIG = [
   { type: 'patrolBoat', length: 1 }
 ];
 
-const createFleet = (fleetData = FLEET_CONFIG) => {
-  const fleet = player1.gameboard.fleet;
+const createFleet = (player, fleetData = FLEET_CONFIG) => {
+  const fleet = {};
   fleetData.forEach(({ type, length }) => {
     fleet[type] = new Ship(type, length);
   });
 
+  player.gameboard.fleet = fleet;
 
+  return fleet;
+};
 
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
