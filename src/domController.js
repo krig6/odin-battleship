@@ -147,7 +147,6 @@ export const enableBoardDropZones = (container) => {
       e.preventDefault();
 
       const shipType = e.dataTransfer.getData('text/ship-type');
-      const shipLength = parseInt(e.dataTransfer.getData('text/ship-length'));
       const orientation = e.dataTransfer.getData('text/orientation') || 'horizontal';
       const dragOffset = parseInt(e.dataTransfer.getData('text/drag-offset')) || 0;
 
@@ -162,10 +161,9 @@ export const enableBoardDropZones = (container) => {
 
       const eventData = {
         shipType,
-        shipLength,
-        orientation,
         startRow,
-        startCol
+        startCol,
+        orientation
       };
 
       const placeEvent = new CustomEvent('place-ship', {
@@ -177,4 +175,3 @@ export const enableBoardDropZones = (container) => {
     });
   });
 };
-
