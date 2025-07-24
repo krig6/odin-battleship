@@ -57,6 +57,16 @@ player1Board.addEventListener('place-ship', (e) => {
   }
 });
 
+player1Board.addEventListener('rotate-ship', (e) => {
+  const shipId = e.detail.shipId;
+
+  const wasRotated = attemptToRotateShip(player1.gameboard, shipId);
+  if (!wasRotated) return;
+
+  updatePlayerGameBoard(player1, player1Board);
+  enableBoardDropZones(player1Board);
+});
+
 const attemptToRotateShip = (gameboard, shipId) => {
   const board = gameboard.board;
 
