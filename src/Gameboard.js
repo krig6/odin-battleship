@@ -87,6 +87,13 @@ class Gameboard {
     return this.board;
   }
 
+  reset() {
+    this.board = this.initializeBoard();
+    this.successfulHits = new Set();
+    this.missedShots = new Set();
+    this.shipPositions = new Set();
+    this.fleet = {};
+  }
 }
 
 export default Gameboard;
