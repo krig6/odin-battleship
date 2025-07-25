@@ -38,9 +38,6 @@ export const setupPlayerOnePlacementScreen = () => {
   enableBoardDropZones(player1Board);
 };
 
-const initialFleetPlacement = () => {
-  const fleet = player1.gameboard.fleet;
-  let row = 0;
 player1Board.addEventListener('place-ship', (e) => {
   const { shipType, startRow, startCol, orientation } = e.detail;
 
@@ -133,11 +130,32 @@ const attemptToRotateShip = (gameboard, shipId) => {
   }
 };
 
+const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
+  player.gameboard.reset();
+  const fleet = createFleet(player);
+
   for (const type in fleet) {
     const ship = fleet[type];
-    player1.gameboard.placeShip(row, 0, ship);
-    row++;
+    let placed = false;
+    let attempts = 0;
+
+    while (!placed && attempts < 100) {
+      const row = Math.floor(Math.random() * 10);
+      const col = Math.floor(Math.random() * 10);
+      const isHorizontal = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+
+      try {
+        player.gameboard.placeShip(row, col, ship, isHorizontal);
+        placed = true;
+      } catch {
+        attempts++;
+      }
+    }
   }
+
+  afterPlacement();
+  updatePlayerGameBoard(player, boardElement);
+};
 
   updatePlayerGameBoard(player1, player1Board);
 };
