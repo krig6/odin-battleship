@@ -165,6 +165,10 @@ const randomizeComputerPlacement = () => {
   autoPlaceFleet(player2, player2Board);
 };
 
+const clearDraggableShipsFromDock = () => {
+  document.querySelectorAll('.ship').forEach(ship => ship.remove());
+};
+
   updatePlayerGameBoard(player1, player1Board);
 };
 
