@@ -169,7 +169,16 @@ const clearDraggableShipsFromDock = () => {
   document.querySelectorAll('.ship').forEach(ship => ship.remove());
 };
 
+const resetBoard = () => {
+  player1.gameboard.reset();
+
+  const dock = document.querySelector('.dock-layout');
+  if (dock) dock.remove();
+
+  const fleet = createFleet(player1);
   updatePlayerGameBoard(player1, player1Board);
+  renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
+  enableBoardDropZones(player1Board);
 };
 
 const handleAttacks = () => {
