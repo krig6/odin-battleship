@@ -34,7 +34,7 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
   renderGameboardGrid(player1, player1Board);
-  renderDockLayout(fleet, randomFleetPlacement, resetBoard, startGame);
+  renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
 };
 
@@ -155,6 +155,14 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
 
   afterPlacement();
   updatePlayerGameBoard(player, boardElement);
+};
+
+const randomizePlayerPlacement = () => {
+  autoPlaceFleet(player1, player1Board, clearDraggableShipsFromDock);
+};
+
+const randomizeComputerPlacement = () => {
+  autoPlaceFleet(player2, player2Board);
 };
 
   updatePlayerGameBoard(player1, player1Board);
