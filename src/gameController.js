@@ -206,6 +206,32 @@ const handleTurn = () => {
   }
 };
 
+const computerAttacks = () => {
+  let row = Math.floor(Math.random() * 10);
+  let col = Math.floor(Math.random() * 10);
+
+  const result = player1.gameboard.receiveAttack(row, col);
+  currentTurn = 'player1';
+
+
+  if (player1.gameboard.allShipsSunk) {
+    console.log(`${player1.name} has all ships sunk!`);
+    return;
+  }
+
+  if (result === 'hit') {
+    const ship = player1.gameboard.getGrid()[row][col];
+
+    console.log(player1.gameboard.getGrid()[row][col]);
+    if (ship && ship.isSunk) {
+      console.log(`${player1.name}'s ${ship.type.charAt(0).toUpperCase()}${ship.type.slice(1)} has sunk!`);
+    }
+  }
+
+  updatePlayerGameBoard(player1, player1Board);
+  handleTurn();
+};
+
 const isPlayerFleetPlaced = () => {
   const shipyard = document.querySelector('.shipyard-container');
   return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
