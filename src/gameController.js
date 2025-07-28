@@ -11,6 +11,7 @@ const player1 = new Player();
 const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
+let currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -194,6 +195,17 @@ const startGame = () => {
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
+};
+
+const handleTurn = () => {
+  if (currentTurn === 'player2') {
+    player2Board.classList.add('turn');
+    player1Board.classList.remove('turn');
+    setTimeout(computerAttacks, 1000);
+  } else {
+    player1Board.classList.add('turn');
+    player2Board.classList.remove('turn');
+  }
 };
 
     const cell = e.target;
