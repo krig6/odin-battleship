@@ -213,6 +213,12 @@ const isPlayerFleetPlaced = () => {
   return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
 };
 
+const setupComputerGameboard = () => {
+  randomizeComputerPlacement();
+  renderGameboardGrid(player2, player2Board, false);
+  player2Board.style.display = 'grid';
+};
+
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
 
