@@ -182,8 +182,6 @@ const resetBoard = () => {
   enableBoardDropZones(player1Board);
 };
 
-const handleAttacks = () => {
-  player1Board.addEventListener('click', (e) => {
 const startGame = () => {
   if (!isPlayerFleetPlaced()) {
     return;
@@ -219,14 +217,38 @@ const setupComputerGameboard = () => {
   player2Board.style.display = 'grid';
 };
 
+const handleAttacks = (player, playerBoard) => {
+  playerBoard.addEventListener('click', (e) => {
+
+    if ((currentTurn === 'player1' && player !== player2) ||
+      (currentTurn === 'player2' && player !== player1)) {
+      return;
+    }
+
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
 
-    const row = cell.dataset.row;
-    const col = cell.dataset.column;
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.column);
 
-    player1.gameboard.receiveAttack(row, col);
-    updatePlayerGameBoard(player1, player1Board);
+    const result = player.gameboard.receiveAttack(row, col);
+    currentTurn = currentTurn === 'player1' ? 'player2' : 'player1';
+
+    renderGameboardGrid(player, playerBoard, false);
+
+    if (player.gameboard.allShipsSunk) {
+      console.log(`${player.name} has all ships sunk!`);
+      return;
+    }
+
+    if (result === 'hit') {
+      const ship = player.gameboard.getGrid()[row][col];
+
+      console.log(player.gameboard.getGrid()[row][col]);
+      if (ship && ship.isSunk) {
+        console.log(`${player.name}'s ${ship.type.charAt(0).toUpperCase()}${ship.type.slice(1)} has sunk!`);
+      }
+    }
+    handleTurn();
   });
 };
-
