@@ -208,6 +208,11 @@ const handleTurn = () => {
   }
 };
 
+const isPlayerFleetPlaced = () => {
+  const shipyard = document.querySelector('.shipyard-container');
+  return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
+};
+
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
 
