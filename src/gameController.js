@@ -183,6 +183,19 @@ const resetBoard = () => {
 
 const handleAttacks = () => {
   player1Board.addEventListener('click', (e) => {
+const startGame = () => {
+  if (!isPlayerFleetPlaced()) {
+    return;
+  }
+
+  const dock = document.querySelector('.dock-layout');
+  if (dock) dock.remove();
+
+  setupComputerGameboard();
+  handleAttacks(player2, player2Board);
+  handleTurn();
+};
+
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
 
