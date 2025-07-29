@@ -1,4 +1,4 @@
-export const renderGameboardGrid = (player, container) => {
+export const renderGameboardGrid = (player, container, revealShips = true) => {
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
   const boardGrid = player.gameboard.getGrid();
@@ -11,7 +11,7 @@ export const renderGameboardGrid = (player, container) => {
       cellElement.dataset.row = row;
       cellElement.dataset.column = column;
 
-      cellElement.addEventListener('click', () => {
+      cellElement.addEventListener('dblclick', () => {
         const shipId = cellElement.dataset.shipId;
         if (!shipId) return;
 
@@ -34,8 +34,8 @@ export const renderGameboardGrid = (player, container) => {
         cellElement.classList.add('miss');
       }
 
-      if (cellValue) {
-        cellElement.classList.add(cellValue.type);
+      if (cellValue && revealShips) {
+        cellElement.classList.add('ship');
         cellElement.dataset.shipId = cellValue.id;
       }
 
