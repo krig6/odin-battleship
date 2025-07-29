@@ -69,18 +69,79 @@ class Gameboard {
   }
 
   receiveAttack(x, y) {
-    if (this.successfulHits.has(`${x},${y}`) || this.missedShots.has(`${x},${y}`)) {
+    const key = `${x},${y}`;
+
+    if (this.successfulHits.has(key) || this.missedShots.has(key)) {
       throw new Error('This cell has already been attacked.');
     }
 
-    if (this.board[x][y] === null) {
-      this.missedShots.add(`${x},${y}`);
+    const target = this.board[x][y];
+
+    if (!target) {
+      this.missedShots.add(key);
       return 'miss';
     }
 
-    this.board[x][y].hit();
-    this.successfulHits.add(`${x},${y}`);
+    target.hit();
+    this.successfulHits.add(key);
+
+    this.markDiagonalBuffer(x, y);
+
+    if (target.isSunk) {
+      this.markFullShipBuffer(target);
+    }
+
     return 'hit';
+  }
+
+  markDiagonalBuffer(x, y) {
+    const diagonals = [
+      [-1, -1], [-1, 1],
+      [1, -1], [1, 1]
+    ];
+
+    for (const [dx, dy] of diagonals) {
+      const nx = x + dx;
+      const ny = y + dy;
+      const key = `${nx},${ny}`;
+
+      if (
+        nx >= 0 && nx < this.boardSize &&
+        ny >= 0 && ny < this.boardSize &&
+        !this.shipPositions.has(key) &&
+        !this.successfulHits.has(key) &&
+        !this.missedShots.has(key)
+      ) {
+        this.missedShots.add(key);
+      }
+    }
+  }
+
+  markFullShipBuffer(ship) {
+    for (let i = -1; i <= ship.length; i++) {
+      for (let offset = -1; offset <= 1; offset++) {
+        let x = ship.x;
+        let y = ship.y;
+
+        if (ship.orientation === 'horizontal') {
+          x += offset;
+          y += i;
+        } else {
+          x += i;
+          y += offset;
+        }
+
+        const key = `${x},${y}`;
+
+        if (
+          x >= 0 && x < this.boardSize &&
+          y >= 0 && y < this.boardSize &&
+          !this.shipPositions.has(key)
+        ) {
+          this.missedShots.add(key);
+        }
+      }
+    }
   }
 
   get allShipsSunk() {
