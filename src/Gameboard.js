@@ -21,35 +21,27 @@ class Gameboard {
       throw new Error('Invalid starting coordinates: position is outside the board.');
     }
 
-    if (orientation !== 'horizontal' && orientation !== 'vertical') {
+    if (!['horizontal', 'vertical'].includes(orientation)) {
       throw new Error('Invalid orientation specified. Must be horizontal or vertical.');
     }
 
-    if (orientation === 'horizontal' && (y + ship.length) > this.boardSize) {
-      throw new Error('Ship placement exceeds board boundaries.');
-    }
-
-    if (orientation === 'vertical' && (x + ship.length) > this.boardSize) {
+    if ((orientation === 'horizontal' && y + ship.length > this.boardSize) ||
+      (orientation === 'vertical' && x + ship.length > this.boardSize)) {
       throw new Error('Ship placement exceeds board boundaries.');
     }
 
     ship.id = ship.type;
     ship.orientation = orientation;
+    ship.x = x;
+    ship.y = y;
 
     const bufferCoords = new Set();
 
     for (let i = 0; i < ship.length; i++) {
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
-          let cx, cy;
-
-          if (orientation === 'horizontal') {
-            cx = x + dx;
-            cy = y + i + dy;
-          } else {
-            cx = x + i + dx;
-            cy = y + dy;
-          }
+          const cx = orientation === 'horizontal' ? x + dx : x + i + dx;
+          const cy = orientation === 'horizontal' ? y + i + dy : y + dy;
 
           if (cx >= 0 && cx < this.boardSize && cy >= 0 && cy < this.boardSize) {
             bufferCoords.add(`${cx},${cy}`);
@@ -58,21 +50,22 @@ class Gameboard {
       }
     }
 
-    for (let coord of bufferCoords) {
+    for (const coord of bufferCoords) {
       const [r, c] = coord.split(',').map(Number);
       const occupyingShip = this.board[r][c];
-
       if (occupyingShip && occupyingShip.id !== ship.id) {
         throw new Error('Invalid placement: overlapping or adjacent to another ship.');
       }
     }
 
     for (let i = 0; i < ship.length; i++) {
-      let cx = orientation === 'vertical' ? x + i : x;
-      let cy = orientation === 'horizontal' ? y + i : y;
+      const cx = orientation === 'vertical' ? x + i : x;
+      const cy = orientation === 'horizontal' ? y + i : y;
       this.board[cx][cy] = ship;
       this.shipPositions.add(`${cx},${cy}`);
     }
+
+    this.fleet[ship.type] = ship;
   }
 
   receiveAttack(x, y) {
