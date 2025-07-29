@@ -16,47 +16,62 @@ class Gameboard {
     return board;
   }
 
-  placeShip(x, y, ship, direction = 'horizontal') {
+  placeShip(x, y, ship, orientation = 'horizontal') {
     if ((x < 0 || x >= this.boardSize) || (y < 0 || y >= this.boardSize)) {
       throw new Error('Invalid starting coordinates: position is outside the board.');
     }
 
-    if (direction !== 'horizontal' && direction !== 'vertical') {
-      throw new Error('Invalid direction specified. Must be horizontal or vertical.');
+    if (orientation !== 'horizontal' && orientation !== 'vertical') {
+      throw new Error('Invalid orientation specified. Must be horizontal or vertical.');
     }
 
-    if (direction === 'horizontal' && (y + ship.length) > this.boardSize) {
+    if (orientation === 'horizontal' && (y + ship.length) > this.boardSize) {
       throw new Error('Ship placement exceeds board boundaries.');
     }
 
-    if (direction === 'vertical' && (x + ship.length) > this.boardSize) {
+    if (orientation === 'vertical' && (x + ship.length) > this.boardSize) {
       throw new Error('Ship placement exceeds board boundaries.');
     }
+
+    ship.id = ship.type;
+    ship.orientation = orientation;
+
+    const bufferCoords = new Set();
 
     for (let i = 0; i < ship.length; i++) {
-      if (direction === 'vertical') {
-        if (this.shipPositions.has(`${x + i},${y}`)) {
-          throw new Error('Invalid placement: overlapping with another ship.');
-        }
-      } else {
-        if (this.shipPositions.has(`${x},${y + i}`)) {
-          throw new Error('Invalid placement: overlapping with another ship.');
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          let cx, cy;
+
+          if (orientation === 'horizontal') {
+            cx = x + dx;
+            cy = y + i + dy;
+          } else {
+            cx = x + i + dx;
+            cy = y + dy;
+          }
+
+          if (cx >= 0 && cx < this.boardSize && cy >= 0 && cy < this.boardSize) {
+            bufferCoords.add(`${cx},${cy}`);
+          }
         }
       }
     }
 
-    if (!this.fleet[ship.type]) {
-      this.fleet[ship.type] = ship;
+    for (let coord of bufferCoords) {
+      const [r, c] = coord.split(',').map(Number);
+      const occupyingShip = this.board[r][c];
+
+      if (occupyingShip && occupyingShip.id !== ship.id) {
+        throw new Error('Invalid placement: overlapping or adjacent to another ship.');
+      }
     }
 
     for (let i = 0; i < ship.length; i++) {
-      if (direction === 'vertical') {
-        this.board[x + i][y] = ship;
-        this.shipPositions.add(`${x + i},${y}`);
-      } else {
-        this.board[x][y + i] = ship;
-        this.shipPositions.add(`${x},${y + i}`);
-      }
+      let cx = orientation === 'vertical' ? x + i : x;
+      let cy = orientation === 'horizontal' ? y + i : y;
+      this.board[cx][cy] = ship;
+      this.shipPositions.add(`${cx},${cy}`);
     }
   }
 
