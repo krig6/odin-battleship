@@ -206,6 +206,16 @@ const handleTurn = () => {
   }
 };
 
+const aiState = {
+  hunting: false,
+  targetQueue: []
+};
+
+const resetAiState = () => {
+  aiState.hunting = false;
+  aiState.targetQueue = [];
+};
+
 const computerAttacks = () => {
   let hasAttacked = false;
   let attempts = 0;
