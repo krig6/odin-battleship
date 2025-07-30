@@ -234,38 +234,76 @@ const getAdjacentCells = (row, col) => {
 
 const computerAttacks = () => {
   let hasAttacked = false;
-  let attempts = 0;
+  let attempt = 0;
 
-  while (!hasAttacked && attempts < 100) {
-    let row = Math.floor(Math.random() * 10);
-    let col = Math.floor(Math.random() * 10);
-    const key = `${row},${col}`;
+  if (aiState.hunting && aiState.targetQueue.length > 0) {
+    while (!hasAttacked && aiState.targetQueue.length > 0) {
+      const adjacentKey = aiState.targetQueue.shift();
+      const [r, c] = adjacentKey;
+      const canShoot =
+        !player1.gameboard.successfulHits.has(`${r},${c}`) &&
+        !player1.gameboard.missedShots.has(`${r},${c}`);
 
-    if (!player1.gameboard.successfulHits.has(key) && !player1.gameboard.missedShots.has(key)) {
-      const result = player1.gameboard.receiveAttack(row, col);
-      currentTurn = 'player1';
-      hasAttacked = true;
-      updatePlayerGameBoard(player1, player1Board);
+      if (canShoot) {
+        const result = player1.gameboard.receiveAttack(r, c);
+        currentTurn = 'player1';
+        hasAttacked = true;
+        updatePlayerGameBoard(player1, player1Board);
 
-      if (player1.gameboard.allShipsSunk) {
-        console.log(`${player1.name} has all ships sunk!`);
-        return;
-      }
+        if (result === 'hit') {
+          const ship = player1.gameboard.getGrid()[r][c];
+          const nextTargets = getAdjacentCells(r, c);
+          aiState.targetQueue.push(...nextTargets);
 
-      if (result === 'hit') {
-        const ship = player1.gameboard.getGrid()[row][col];
-
-        if (ship && ship.isSunk) {
-          console.log(`${player1.name}'s ${ship.type.charAt(0).toUpperCase()}${ship.type.slice(1)} has sunk!`);
+          if (ship && ship.isSunk) {
+            resetAiState();
+          }
         }
+        if (player1.gameboard.allShipsSunk) {
+          console.log(`${player1.name} has all ships sunk!`);
+          return;
+        }
+        break;
       }
-      handleTurn();
-    } else {
-      if (player1.gameboard.missedShots.has(key)) {
-        console.log('TRIED TO ATTACK BUFFER ZONE!:', key);
-      }
-      attempts++;
     }
+  }
+
+  if (!hasAttacked) {
+    while (attempt < 100) {
+      let r = Math.floor(Math.random() * 10);
+      let c = Math.floor(Math.random() * 10);
+      const key = `${r},${c}`;
+      const canShoot =
+        !player1.gameboard.successfulHits.has(key) &&
+        !player1.gameboard.missedShots.has(key);
+
+      if (canShoot) {
+        const result = player1.gameboard.receiveAttack(r, c);
+        currentTurn = 'player1';
+        hasAttacked = true;
+        updatePlayerGameBoard(player1, player1Board);
+
+        if (result === 'hit') {
+          aiState.hunting = true;
+          const ship = player1.gameboard.getGrid()[r][c];
+          const nextTargets = getAdjacentCells(r, c);
+          aiState.targetQueue.push(...nextTargets);
+
+          if (ship && ship.isSunk) {
+            resetAiState();
+          }
+        }
+        if (player1.gameboard.allShipsSunk) {
+          console.log(`${player1.name} has all ships sunk!`);
+          return;
+        }
+        break;
+      }
+      attempt++;
+    }
+  }
+  if (hasAttacked && !player1.gameboard.allShipsSunk) {
+    handleTurn();
   }
 };
 
@@ -307,7 +345,6 @@ const handleAttacks = (player, playerBoard) => {
     if (result === 'hit') {
       const ship = player.gameboard.getGrid()[row][col];
 
-      console.log(player.gameboard.getGrid()[row][col]);
       if (ship && ship.isSunk) {
         console.log(`${player.name}'s ${ship.type.charAt(0).toUpperCase()}${ship.type.slice(1)} has sunk!`);
       }
