@@ -216,6 +216,22 @@ const resetAiState = () => {
   aiState.targetQueue = [];
 };
 
+const getAdjacentCells = (row, col) => {
+  const directions = [
+    [row, col - 1],  // left
+    [row, col + 1], // right
+    [row - 1, col], // up
+    [row + 1, col] // down
+  ];
+
+  return directions.filter(([row, col]) =>
+    row >= 0 && row < 10 &&
+    col >= 0 && col < 10 &&
+    !player1.gameboard.successfulHits.has(`${row},${col}`) &&
+    !player1.gameboard.missedShots.has(`${row},${col}`)
+  );
+};
+
 const computerAttacks = () => {
   let hasAttacked = false;
   let attempts = 0;
