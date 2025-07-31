@@ -184,3 +184,11 @@ export const enableBoardDropZones = (container) => {
   });
 };
 
+export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
+  const messageContainer = document.getElementById('message-container');
+  const message = document.createElement('p');
+  messageContainer.innerHTML = '';
+  message.textContent = gameMessage;
+
+  messageContainer.appendChild(message);
+};
