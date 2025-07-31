@@ -134,6 +134,14 @@ export const renderStartGameButton = (onClickHandler) => {
   return startGameButton;
 };
 
+export const renderNewGameButton = (onClickHandler) => {
+  const newGameButton = document.createElement('button');
+  newGameButton.textContent = 'New Game';
+  newGameButton.classList.add('new-game-btn');
+  newGameButton.addEventListener('click', onClickHandler);
+  return newGameButton;
+};
+
 export const enableBoardDropZones = (container) => {
   const cells = container.querySelectorAll('.cell');
 
@@ -175,3 +183,4 @@ export const enableBoardDropZones = (container) => {
     });
   });
 };
+
