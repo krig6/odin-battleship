@@ -5,7 +5,8 @@ import {
   renderGameboardGrid,
   renderDockLayout,
   updatePlayerGameBoard,
-  renderNewGameButton
+  renderNewGameButton,
+  displayGameMessage
 } from './domController.js';
 
 const player1 = new Player();
@@ -15,6 +16,7 @@ const player2Board = document.getElementById('player-two-board');
 const mainContainer = document.getElementById('main-container');
 let currentTurn = null;
 let aiTimeoutId = null;
+let shouldShowStartMessage = true;
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -40,6 +42,7 @@ export const setupPlayerOnePlacementScreen = () => {
   renderGameboardGrid(player1, player1Board);
   renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
+  displayGameMessage();
 };
 
 player1Board.addEventListener('place-ship', (e) => {
@@ -57,7 +60,7 @@ player1Board.addEventListener('place-ship', (e) => {
       shipElement.remove();
     }
   } catch (err) {
-    alert(err.message);
+    displayGameMessage(err.message);
   }
 });
 
@@ -183,6 +186,7 @@ const resetBoard = () => {
   updatePlayerGameBoard(player1, player1Board);
   renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
+  shouldShowStartMessage = true;
 };
 
 const startGame = () => {
@@ -194,6 +198,13 @@ const startGame = () => {
   if (dock) dock.remove();
 
   setRandomStartingPlayer();
+
+  displayGameMessage(
+    currentTurn === 'player1'
+      ? 'You’ve gained the initiative. Launch your first attack!'
+      : 'Enemy has the initiative. Stay sharp.'
+  );
+
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
@@ -225,6 +236,7 @@ const newGame = () => {
     newGameButton.remove();
   }
 
+  shouldShowStartMessage = true;
   setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
@@ -238,11 +250,20 @@ const handleTurn = () => {
   if (currentTurn === 'player2') {
     player2Board.classList.add('turn');
     player1Board.classList.remove('turn');
-    aiTimeoutId = setTimeout(computerAttacks, 100);
+
+    if (!shouldShowStartMessage) {
+      displayGameMessage('Opponent\'s turn.');
+    }
+    aiTimeoutId = setTimeout(computerAttacks, 1000);
   } else {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
+
+    if (!shouldShowStartMessage) {
+      displayGameMessage('Your turn.');
+    }
   }
+  shouldShowStartMessage = false;
 };
 
 const aiState = {
@@ -274,6 +295,7 @@ const getAdjacentCells = (row, col) => {
 const computerAttacks = () => {
   let hasAttacked = false;
   let attempt = 0;
+  let gameMessage = '';
 
   if (aiState.hunting && aiState.targetQueue.length > 0) {
     while (!hasAttacked && aiState.targetQueue.length > 0) {
@@ -299,7 +321,8 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          console.log(`${player1.name} has all ships sunk!`);
+          gameMessage = 'Enemy has sunk all of your ships!!';
+          displayGameMessage(gameMessage);
           return;
         }
         break;
@@ -333,7 +356,8 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          console.log(`${player1.name} has all ships sunk!`);
+          gameMessage = 'Enemy has sunk all of your ships!!';
+          displayGameMessage(gameMessage);
           return;
         }
         break;
