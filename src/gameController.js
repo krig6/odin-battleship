@@ -193,6 +193,9 @@ const startGame = () => {
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
+const clearTurnIndicators = () => {
+  player1Board.classList.remove('turn');
+  player2Board.classList.remove('turn');
 };
 
 const handleTurn = () => {
