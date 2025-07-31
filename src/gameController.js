@@ -13,7 +13,7 @@ const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
 const mainContainer = document.getElementById('main-container');
-let currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
+let currentTurn = null;
 let aiTimeoutId = null;
 
 const FLEET_CONFIG = [
@@ -193,10 +193,15 @@ const startGame = () => {
   const dock = document.querySelector('.dock-layout');
   if (dock) dock.remove();
 
+  setRandomStartingPlayer();
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
   mainContainer.appendChild(renderNewGameButton(newGame));
+};
+
+const setRandomStartingPlayer = () => {
+  return currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
 };
 
 const newGame = () => {
@@ -220,6 +225,7 @@ const newGame = () => {
     newGameButton.remove();
   }
 
+  setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
 
