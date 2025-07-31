@@ -4,14 +4,17 @@ import {
   enableBoardDropZones,
   renderGameboardGrid,
   renderDockLayout,
-  updatePlayerGameBoard
+  updatePlayerGameBoard,
+  renderNewGameButton
 } from './domController.js';
 
 const player1 = new Player();
 const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
+const mainContainer = document.getElementById('main-container');
 let currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
+let aiTimeoutId = null;
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -193,6 +196,33 @@ const startGame = () => {
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
+  mainContainer.appendChild(renderNewGameButton(newGame));
+};
+
+const newGame = () => {
+  if (aiTimeoutId !== null) {
+    clearTimeout(aiTimeoutId);
+    aiTimeoutId = null;
+  }
+  resetAiState();
+
+  if (player2Board) {
+    player2Board.style.display = 'none';
+  }
+
+  clearTurnIndicators();
+
+  player1.gameboard.reset();
+  player2.gameboard.reset();
+
+  const newGameButton = document.querySelector('.new-game-btn');
+  if (newGameButton) {
+    newGameButton.remove();
+  }
+
+  setupPlayerOnePlacementScreen();
+};
+
 const clearTurnIndicators = () => {
   player1Board.classList.remove('turn');
   player2Board.classList.remove('turn');
@@ -202,7 +232,7 @@ const handleTurn = () => {
   if (currentTurn === 'player2') {
     player2Board.classList.add('turn');
     player1Board.classList.remove('turn');
-    setTimeout(computerAttacks, 1000);
+    aiTimeoutId = setTimeout(computerAttacks, 100);
   } else {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
