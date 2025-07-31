@@ -321,7 +321,7 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          gameMessage = 'Enemy has sunk all of your ships!!';
+          gameMessage = 'All your ships have been destroyed. Defeat!';
           displayGameMessage(gameMessage);
           return;
         }
@@ -356,7 +356,7 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          gameMessage = 'Enemy has sunk all of your ships!!';
+          gameMessage = 'All your ships have been destroyed. Defeat!';
           displayGameMessage(gameMessage);
           return;
         }
@@ -365,9 +365,8 @@ const computerAttacks = () => {
       attempt++;
     }
   }
-  if (hasAttacked && !player1.gameboard.allShipsSunk) {
-    handleTurn();
-  }
+  handleTurn();
+}
 };
 
 const isPlayerFleetPlaced = () => {
@@ -383,6 +382,7 @@ const setupComputerGameboard = () => {
 
 const handleAttacks = (player, playerBoard) => {
   playerBoard.addEventListener('click', (e) => {
+    let gameMessage = '';
 
     if ((currentTurn === 'player1' && player !== player2) ||
       (currentTurn === 'player2' && player !== player1)) {
@@ -395,23 +395,21 @@ const handleAttacks = (player, playerBoard) => {
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.column);
 
-    const result = player.gameboard.receiveAttack(row, col);
-    currentTurn = currentTurn === 'player1' ? 'player2' : 'player1';
+    try {
+      player.gameboard.receiveAttack(row, col);
+      currentTurn = currentTurn === 'player1' ? 'player2' : 'player1';
+      renderGameboardGrid(player, playerBoard, false);
 
-    renderGameboardGrid(player, playerBoard, false);
-
-    if (player.gameboard.allShipsSunk) {
-      console.log(`${player.name} has all ships sunk!`);
+      if (player.gameboard.allShipsSunk) {
+        gameMessage = 'You\'ve sunk the enemy fleet. Victory is yours!';
+        displayGameMessage(gameMessage);
+        return;
+      }
+    } catch (err) {
+      displayGameMessage(err.message);
       return;
     }
 
-    if (result === 'hit') {
-      const ship = player.gameboard.getGrid()[row][col];
-
-      if (ship && ship.isSunk) {
-        console.log(`${player.name}'s ${ship.type.charAt(0).toUpperCase()}${ship.type.slice(1)} has sunk!`);
-      }
-    }
     handleTurn();
   });
 };
