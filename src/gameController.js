@@ -400,13 +400,9 @@ const setupComputerGameboard = () => {
   player2Board.style.display = 'grid';
 };
 
-const handleAttacks = (player, playerBoard) => {
-  playerBoard.addEventListener('click', (e) => {
-
-    if ((currentTurn === 'player1' && player !== player2) ||
-      (currentTurn === 'player2' && player !== player1)) {
-      return;
-    }
+const handleAttacks = (attacker, defender, defenderBoard) => {
+  return (e) => {
+    if (gameState.currentTurn !== attacker.id || gameState.gameHasEnded) return;
 
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
@@ -415,11 +411,11 @@ const handleAttacks = (player, playerBoard) => {
     const col = parseInt(cell.dataset.column);
 
     try {
-      player.gameboard.receiveAttack(row, col);
-      renderGameboardGrid(player, playerBoard, false);
+      defender.gameboard.receiveAttack(row, col);
+      renderGameboardGrid(defender, defenderBoard, false);
 
-      if (player.gameboard.allShipsSunk) {
-        gameOver('player1');
+      if (defender.gameboard.allShipsSunk) {
+        gameOver(attacker.id);
         return;
       }
       gameState.currentTurn = defender.id;
@@ -427,9 +423,8 @@ const handleAttacks = (player, playerBoard) => {
       displayGameMessage(err.message);
       return;
     }
-
     handleTurn();
-  });
+  };
 };
 
 const gameOver = (winner) => {
