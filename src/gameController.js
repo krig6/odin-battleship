@@ -9,8 +9,8 @@ import {
   displayGameMessage
 } from './domController.js';
 
-const player1 = new Player();
-const player2 = new Player('Computer', true);
+const player1 = new Player('player1');
+const player2 = new Player('player2', 'Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
 const mainContainer = document.getElementById('main-container');
@@ -206,7 +206,7 @@ const startGame = () => {
   setRandomStartingPlayer();
 
   displayGameMessage(
-    currentTurn === 'player1'
+    gameState.currentTurn === player1.id
       ? 'You’ve gained the initiative. Launch your first attack!'
       : 'Enemy has the initiative. Stay sharp.'
   );
@@ -264,6 +264,8 @@ const clearTurnIndicators = () => {
 
 const handleTurn = () => {
   if (currentTurn === 'player2') {
+  const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
+
     player2Board.classList.add('turn');
     player1Board.classList.remove('turn');
 
@@ -329,7 +331,7 @@ const computerAttacks = () => {
 
       if (canShoot) {
         const result = player1.gameboard.receiveAttack(r, c);
-        currentTurn = 'player1';
+        gameState.currentTurn = player1.id;
         hasAttacked = true;
         updatePlayerGameBoard(player1, player1Board);
 
@@ -361,7 +363,7 @@ const computerAttacks = () => {
 
       if (canShoot) {
         const result = player1.gameboard.receiveAttack(r, c);
-        currentTurn = 'player1';
+        gameState.currentTurn = player1.id;
         hasAttacked = true;
         updatePlayerGameBoard(player1, player1Board);
 
@@ -414,13 +416,13 @@ const handleAttacks = (player, playerBoard) => {
 
     try {
       player.gameboard.receiveAttack(row, col);
-      currentTurn = currentTurn === 'player1' ? 'player2' : 'player1';
       renderGameboardGrid(player, playerBoard, false);
 
       if (player.gameboard.allShipsSunk) {
         gameOver('player1');
         return;
       }
+      gameState.currentTurn = defender.id;
     } catch (err) {
       displayGameMessage(err.message);
       return;
