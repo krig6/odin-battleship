@@ -14,10 +14,6 @@ const player2 = new Player('Computer', true);
 const player1Board = document.getElementById('player-one-board');
 const player2Board = document.getElementById('player-two-board');
 const mainContainer = document.getElementById('main-container');
-let currentTurn = null;
-let aiTimeoutId = null;
-let shouldShowStartMessage = true;
-let gameHasEnded = false;
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -26,6 +22,15 @@ const FLEET_CONFIG = [
   { type: 'submarine', length: 2 },
   { type: 'patrolBoat', length: 1 }
 ];
+
+const gameState = {
+  currentTurn: null,
+  aiTimeoutId: null,
+  shouldShowStartMessage: true,
+  gameHasEnded: false,
+  player1ClickHandler: null,
+  player2ClickHandler: null
+};
 
 const createFleet = (player, fleetData = FLEET_CONFIG) => {
   const fleet = {};
@@ -187,7 +192,7 @@ const resetBoard = () => {
   updatePlayerGameBoard(player1, player1Board);
   renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
-  shouldShowStartMessage = true;
+  gameState.shouldShowStartMessage = true;
 };
 
 const startGame = () => {
@@ -215,13 +220,22 @@ const setRandomStartingPlayer = () => {
   return currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
 };
 
-const newGame = () => {
-  gameHasEnded = false;
 
-  if (aiTimeoutId !== null) {
-    clearTimeout(aiTimeoutId);
-    aiTimeoutId = null;
+const resetGameState = () => {
+  if (gameState.aiTimeoutId !== null) {
+    clearTimeout(gameState.aiTimeoutId);
   }
+
+  gameState.currentTurn = null;
+  gameState.aiTimeoutId = null;
+  gameState.shouldShowStartMessage = true;
+  gameState.gameHasEnded = false;
+  gameState.player1ClickHandler = null;
+  gameState.player2ClickHandler = null;
+};
+
+const newGame = () => {
+  resetGameState();
   resetAiState();
 
   if (player2Board) {
@@ -239,7 +253,6 @@ const newGame = () => {
     newGameButton.remove();
   }
 
-  shouldShowStartMessage = true;
   setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
@@ -418,12 +431,12 @@ const handleAttacks = (player, playerBoard) => {
 };
 
 const gameOver = (winner) => {
-  if (gameHasEnded) return;
-  gameHasEnded = true;
+  if (gameState.gameHasEnded) return;
+  gameState.gameHasEnded = true;
 
-  if (aiTimeoutId !== null) {
-    clearTimeout(aiTimeoutId);
-    aiTimeoutId = null;
+  if (gameState.aiTimeoutId !== null) {
+    clearTimeout(gameState.aiTimeoutId);
+    gameState.aiTimeoutId = null;
   }
 
   const message =
