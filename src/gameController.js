@@ -210,10 +210,26 @@ const startGame = () => {
       ? 'You’ve gained the initiative. Launch your first attack!'
       : 'Enemy has the initiative. Stay sharp.'
   );
+
   setupComputerGameboard();
-  handleAttacks(player2, player2Board);
+  setupAttackListeners();
   handleTurn();
   mainContainer.appendChild(renderNewGameButton(newGame));
+};
+
+const setupAttackListeners = () => {
+  if (gameState.player1ClickHandler) {
+    player2Board.removeEventListener('click', gameState.player1ClickHandler);
+  }
+  if (gameState.player2ClickHandler) {
+    player1Board.removeEventListener('click', gameState.player2ClickHandler);
+  }
+
+  gameState.player1ClickHandler = handleAttacks(player1, player2, player2Board);
+  gameState.player2ClickHandler = handleAttacks(player2, player1, player1Board);
+
+  player1Board.addEventListener('click', gameState.player2ClickHandler);
+  player2Board.addEventListener('click', gameState.player1ClickHandler);
 };
 
 const setRandomStartingPlayer = () => {
