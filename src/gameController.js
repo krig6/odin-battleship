@@ -254,7 +254,8 @@ const handleTurn = () => {
     if (!shouldShowStartMessage) {
       displayGameMessage('Opponent\'s turn.');
     }
-    aiTimeoutId = setTimeout(computerAttacks, 1000);
+    const aiAttackDelay = aiState.getAttackDelay();
+    aiTimeoutId = setTimeout(computerAttacks, aiAttackDelay);
   } else {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
@@ -268,7 +269,12 @@ const handleTurn = () => {
 
 const aiState = {
   hunting: false,
-  targetQueue: []
+  targetQueue: [],
+  getAttackDelay() {
+    return this.hunting
+      ? Math.floor(Math.random() * (900 - 500 + 1)) + 500
+      : Math.floor(Math.random() * (2500 - 1200 + 1)) + 1200;
+  }
 };
 
 const resetAiState = () => {
@@ -329,7 +335,6 @@ const computerAttacks = () => {
       }
     }
   }
-
   if (!hasAttacked) {
     while (attempt < 100) {
       let r = Math.floor(Math.random() * 10);
@@ -366,7 +371,6 @@ const computerAttacks = () => {
     }
   }
   handleTurn();
-}
 };
 
 const isPlayerFleetPlaced = () => {
