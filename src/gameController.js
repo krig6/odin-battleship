@@ -281,26 +281,26 @@ const clearTurnIndicators = () => {
 };
 
 const handleTurn = () => {
-  if (currentTurn === 'player2') {
   const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
 
+  if (currentPlayer.isComputer && currentPlayer === player2) {
     player2Board.classList.add('turn');
     player1Board.classList.remove('turn');
 
-    if (!shouldShowStartMessage) {
+    if (!gameState.shouldShowStartMessage) {
       displayGameMessage('Opponent\'s turn.');
     }
     const aiAttackDelay = aiState.getAttackDelay();
-    aiTimeoutId = setTimeout(computerAttacks, aiAttackDelay);
+    gameState.aiTimeoutId = setTimeout(computerAttacks, aiAttackDelay);
   } else {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
 
-    if (!shouldShowStartMessage) {
+    if (!gameState.shouldShowStartMessage) {
       displayGameMessage('Your turn.');
     }
   }
-  shouldShowStartMessage = false;
+  gameState.shouldShowStartMessage = false;
 };
 
 const aiState = {
@@ -337,7 +337,6 @@ const getAdjacentCells = (row, col) => {
 const computerAttacks = () => {
   let hasAttacked = false;
   let attempt = 0;
-  let gameMessage = '';
 
   if (aiState.hunting && aiState.targetQueue.length > 0) {
     while (!hasAttacked && aiState.targetQueue.length > 0) {
