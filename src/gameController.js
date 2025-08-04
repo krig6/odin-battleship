@@ -217,7 +217,7 @@ const startGame = () => {
 };
 
 const setRandomStartingPlayer = () => {
-  return currentTurn = Math.floor(Math.random() * 2) === 0 ? 'player1' : 'player2';
+  gameState.currentTurn = Math.random() < 0.5 ? player1.id : player2.id;
 };
 
 
