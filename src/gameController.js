@@ -17,6 +17,7 @@ const mainContainer = document.getElementById('main-container');
 let currentTurn = null;
 let aiTimeoutId = null;
 let shouldShowStartMessage = true;
+let gameHasEnded = false;
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -204,7 +205,6 @@ const startGame = () => {
       ? 'You’ve gained the initiative. Launch your first attack!'
       : 'Enemy has the initiative. Stay sharp.'
   );
-
   setupComputerGameboard();
   handleAttacks(player2, player2Board);
   handleTurn();
@@ -216,6 +216,8 @@ const setRandomStartingPlayer = () => {
 };
 
 const newGame = () => {
+  gameHasEnded = false;
+
   if (aiTimeoutId !== null) {
     clearTimeout(aiTimeoutId);
     aiTimeoutId = null;
@@ -224,6 +226,7 @@ const newGame = () => {
 
   if (player2Board) {
     player2Board.style.display = 'none';
+    player2Board.style.pointerEvents = 'auto';
   }
 
   clearTurnIndicators();
@@ -327,8 +330,7 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          gameMessage = 'All your ships have been destroyed. Defeat!';
-          displayGameMessage(gameMessage);
+          gameOver('player2');
           return;
         }
         break;
@@ -361,8 +363,7 @@ const computerAttacks = () => {
           }
         }
         if (player1.gameboard.allShipsSunk) {
-          gameMessage = 'All your ships have been destroyed. Defeat!';
-          displayGameMessage(gameMessage);
+          gameOver('player2');
           return;
         }
         break;
@@ -386,7 +387,6 @@ const setupComputerGameboard = () => {
 
 const handleAttacks = (player, playerBoard) => {
   playerBoard.addEventListener('click', (e) => {
-    let gameMessage = '';
 
     if ((currentTurn === 'player1' && player !== player2) ||
       (currentTurn === 'player2' && player !== player1)) {
@@ -405,8 +405,7 @@ const handleAttacks = (player, playerBoard) => {
       renderGameboardGrid(player, playerBoard, false);
 
       if (player.gameboard.allShipsSunk) {
-        gameMessage = 'You\'ve sunk the enemy fleet. Victory is yours!';
-        displayGameMessage(gameMessage);
+        gameOver('player1');
         return;
       }
     } catch (err) {
@@ -416,4 +415,24 @@ const handleAttacks = (player, playerBoard) => {
 
     handleTurn();
   });
+};
+
+const gameOver = (winner) => {
+  if (gameHasEnded) return;
+  gameHasEnded = true;
+
+  if (aiTimeoutId !== null) {
+    clearTimeout(aiTimeoutId);
+    aiTimeoutId = null;
+  }
+
+  const message =
+    winner === 'player1'
+      ? 'You\'ve sunk the enemy fleet. Victory is yours!'
+      : 'All your ships have been destroyed. Defeat!';
+
+  displayGameMessage(message);
+  clearTurnIndicators();
+
+  player2Board.style.pointerEvents = 'none';
 };
