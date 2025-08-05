@@ -92,41 +92,25 @@ const attemptToRotateShip = (gameboard, shipId) => {
   const [r, c] = shipCells[0];
   const ship = board[r][c];
   const originalOrientation = ship.orientation;
+  const shipLength = ship.length;
 
   const originalBoard = board.map(row => [...row]);
   const originalShipPositions = new Set(gameboard.shipPositions);
 
-  if (shipCells.length === 1) {
-    board[r][c] = null;
-    gameboard.shipPositions.delete(`${r},${c}`);
-
-    const newOrientation = originalOrientation === 'horizontal' ? 'vertical' : 'horizontal';
-    try {
-      gameboard.placeShip(r, c, ship, newOrientation);
-      return true;
-    } catch (err) {
-      gameboard.board = originalBoard;
-      gameboard.shipPositions = originalShipPositions;
-      ship.orientation = originalOrientation;
-      displayGameMessage(err);
-      return false;
-    }
-  }
-
   const isHorizontal = shipCells[0][0] === shipCells[1][0];
   const sorted = shipCells.sort((a, b) => isHorizontal ? a[1] - b[1] : a[0] - b[0]);
 
-  const midIndex = Math.floor(sorted.length / 2);
-  const [pivotRow, pivotCol] = sorted[midIndex];
+  const pivotIndex = Math.floor(shipLength / 2);
+  const [pivotRow, pivotCol] = sorted[pivotIndex];
+  const newOrientation = isHorizontal ? 'vertical' : 'horizontal';
 
   let startRow = pivotRow;
   let startCol = pivotCol;
-  const newOrientation = isHorizontal ? 'vertical' : 'horizontal';
 
   if (newOrientation === 'horizontal') {
-    startCol = pivotCol - midIndex;
+    startCol = pivotCol - pivotIndex;
   } else {
-    startRow = pivotRow - midIndex;
+    startRow = pivotRow - pivotIndex;
   }
 
   for (const [r, c] of sorted) {
