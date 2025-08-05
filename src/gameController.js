@@ -447,3 +447,37 @@ const gameOver = (winner) => {
 
   player2Board.style.pointerEvents = 'none';
 };
+
+const canFitAnyShip = (row, col, shipSizes) => {
+  const boardSize = 10;
+  for (const size of shipSizes) {
+    let horizontalFit = true;
+    let verticalFit = true;
+
+    for (let offset = 0; offset < size; offset++) {
+      if (
+        col + size > boardSize ||
+        player1.gameboard.successfulHits.has(`${row},${col + offset}`) ||
+        player1.gameboard.missedShots.has(`${row},${col + offset}`)
+      ) {
+        horizontalFit = false;
+      }
+      if (
+        row + size > boardSize ||
+        player1.gameboard.successfulHits.has(`${row + offset},${col}`) ||
+        player1.gameboard.missedShots.has(`${row + offset},${col}`)
+      ) {
+        verticalFit = false;
+      }
+    }
+
+    if (horizontalFit || verticalFit) return true;
+  }
+  return false;
+};
+
+const getRemainingShipSizes = () => {
+  return Object.values(player1.gameboard.fleet)
+    .filter(ship => !ship.isSunk)
+    .map(ship => ship.length);
+};
