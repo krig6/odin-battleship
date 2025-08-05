@@ -354,6 +354,7 @@ const computerAttacks = () => {
     }
   }
   if (!hasAttacked) {
+    const remainingShipSizes = getRemainingShipSizes();
     while (attempt < 100) {
       let r = Math.floor(Math.random() * 10);
       let c = Math.floor(Math.random() * 10);
@@ -362,7 +363,7 @@ const computerAttacks = () => {
         !player1.gameboard.successfulHits.has(key) &&
         !player1.gameboard.missedShots.has(key);
 
-      if (canShoot) {
+      if (canShoot && canFitAnyShip(r, c, remainingShipSizes)) {
         const result = player1.gameboard.receiveAttack(r, c);
         gameState.currentTurn = player1.id;
         hasAttacked = true;
