@@ -9,11 +9,7 @@ class Gameboard {
   }
 
   initializeBoard() {
-    const board = [];
-    for (let i = 0; i < this.boardSize; i++) {
-      board.push(Array(this.boardSize).fill(null));
-    }
-    return board;
+    return Array.from({ length: this.boardSize }, () => Array(this.boardSize).fill(null));
   }
 
   placeShip(x, y, ship, orientation = 'horizontal') {
@@ -35,55 +31,67 @@ class Gameboard {
     ship.x = x;
     ship.y = y;
 
-    const bufferCoords = new Set();
+    const bufferCoordinates = new Set();
 
-    for (let i = 0; i < ship.length; i++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        for (let dy = -1; dy <= 1; dy++) {
-          const cx = orientation === 'horizontal' ? x + dx : x + i + dx;
-          const cy = orientation === 'horizontal' ? y + i + dy : y + dy;
+    for (let shipIndex = 0; shipIndex < ship.length; shipIndex++) {
+      for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+        for (let columnOffset = -1; columnOffset <= 1; columnOffset++) {
+          const row = orientation === 'horizontal'
+            ? x + rowOffset
+            : x + shipIndex + rowOffset;
 
-          if (cx >= 0 && cx < this.boardSize && cy >= 0 && cy < this.boardSize) {
-            bufferCoords.add(`${cx},${cy}`);
+          const column = orientation === 'horizontal'
+            ? y + shipIndex + columnOffset
+            : y + columnOffset;
+
+          const isWithinBounds = (
+            row >= 0 &&
+            row < this.boardSize &&
+            column >= 0 &&
+            column < this.boardSize
+          );
+
+          if (isWithinBounds) {
+            bufferCoordinates.add(`${row},${column}`);
           }
         }
       }
     }
 
-    for (const coord of bufferCoords) {
-      const [r, c] = coord.split(',').map(Number);
-      const occupyingShip = this.board[r][c];
+    for (const coordinate of bufferCoordinates) {
+      const [row, column] = coordinate.split(',').map(Number);
+      const occupyingShip = this.board[row][column];
       if (occupyingShip && occupyingShip.id !== ship.id) {
         throw new Error('Invalid placement: overlapping or adjacent to another ship.');
       }
     }
 
-    for (let i = 0; i < ship.length; i++) {
-      const cx = orientation === 'vertical' ? x + i : x;
-      const cy = orientation === 'horizontal' ? y + i : y;
-      this.board[cx][cy] = ship;
-      this.shipPositions.add(`${cx},${cy}`);
+    for (let shipIndex = 0; shipIndex < ship.length; shipIndex++) {
+      const row = orientation === 'vertical' ? x + shipIndex : x;
+      const column = orientation === 'horizontal' ? y + shipIndex : y;
+      this.board[row][column] = ship;
+      this.shipPositions.add(`${row},${column}`);
     }
 
     this.fleet[ship.type] = ship;
   }
 
   receiveAttack(x, y) {
-    const key = `${x},${y}`;
+    const coordinate = `${x},${y}`;
 
-    if (this.successfulHits.has(key) || this.missedShots.has(key)) {
+    if (this.successfulHits.has(coordinate) || this.missedShots.has(coordinate)) {
       throw new Error('This cell has already been attacked.');
     }
 
     const target = this.board[x][y];
 
     if (!target) {
-      this.missedShots.add(key);
+      this.missedShots.add(coordinate);
       return 'miss';
     }
 
     target.hit();
-    this.successfulHits.add(key);
+    this.successfulHits.add(coordinate);
 
     this.markDiagonalBuffer(x, y);
 
@@ -95,61 +103,73 @@ class Gameboard {
   }
 
   markDiagonalBuffer(x, y) {
-    const diagonals = [
+    const diagonalOffsets = [
       [-1, -1], [-1, 1],
       [1, -1], [1, 1]
     ];
 
-    for (const [dx, dy] of diagonals) {
-      const nx = x + dx;
-      const ny = y + dy;
-      const key = `${nx},${ny}`;
+    for (const [rowOffset, columnOffset] of diagonalOffsets) {
+      const row = x + rowOffset;
+      const column = y + columnOffset;
+      const coordinate = `${row},${column}`;
 
-      if (
-        nx >= 0 && nx < this.boardSize &&
-        ny >= 0 && ny < this.boardSize &&
-        !this.shipPositions.has(key) &&
-        !this.successfulHits.has(key) &&
-        !this.missedShots.has(key)
-      ) {
-        this.missedShots.add(key);
+      const isWithinBounds = (
+        row >= 0 &&
+        row < this.boardSize &&
+        column >= 0 &&
+        column < this.boardSize
+      );
+
+      const isUnmarked = (
+        !this.shipPositions.has(coordinate) &&
+        !this.successfulHits.has(coordinate) &&
+        !this.missedShots.has(coordinate)
+      );
+
+      if (isWithinBounds && isUnmarked) {
+        this.missedShots.add(coordinate);
       }
     }
   }
 
   markFullShipBuffer(ship) {
-    for (let i = -1; i <= ship.length; i++) {
-      for (let offset = -1; offset <= 1; offset++) {
-        let x = ship.x;
-        let y = ship.y;
+    for (let shipIndex = -1; shipIndex <= ship.length; shipIndex++) {
+      for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+        let row = ship.x;
+        let column = ship.y;
 
         if (ship.orientation === 'horizontal') {
-          x += offset;
-          y += i;
+          row += rowOffset;
+          column += shipIndex;
         } else {
-          x += i;
-          y += offset;
+          row += shipIndex;
+          column += rowOffset;
         }
 
-        const key = `${x},${y}`;
+        const coordinate = `${row},${column}`;
 
-        if (
-          x >= 0 && x < this.boardSize &&
-          y >= 0 && y < this.boardSize &&
-          !this.shipPositions.has(key)
-        ) {
-          this.missedShots.add(key);
+        const isWithinBounds = (
+          row >= 0 &&
+          row < this.boardSize &&
+          column >= 0 &&
+          column < this.boardSize
+        );
+
+        const isUnoccupied = !this.shipPositions.has(coordinate);
+
+        if (isWithinBounds && isUnoccupied) {
+          this.missedShots.add(coordinate);
         }
       }
     }
   }
 
   get allShipsSunk() {
-    if (Object.values(this.fleet).length === 0) {
+    const ships = Object.values(this.fleet);
+    if (ships.length === 0) {
       throw new Error('No ships have been placed on the board.');
     }
-
-    return Object.values(this.fleet).every(ship => ship.isSunk);
+    return ships.every(ship => ship.isSunk);
   }
 
   getGrid() {
@@ -158,9 +178,9 @@ class Gameboard {
 
   reset() {
     this.board = this.initializeBoard();
-    this.successfulHits = new Set();
-    this.missedShots = new Set();
-    this.shipPositions = new Set();
+    this.successfulHits.clear();
+    this.missedShots.clear();
+    this.shipPositions.clear();
     this.fleet = {};
   }
 }
