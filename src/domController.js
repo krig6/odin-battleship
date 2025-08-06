@@ -105,42 +105,25 @@ const createDraggableShips = (fleetConfig) => {
   return shipyardContainer;
 };
 
-export const renderRandomizeButton = (onClickHandler) => {
-  const randomizeButton = document.createElement('button');
-  randomizeButton.textContent = 'Randomize';
-  randomizeButton.classList.add('random-btn');
-  randomizeButton.addEventListener('click', onClickHandler);
-
-  return randomizeButton;
+const createButton = (label, className, onClickHandler) => {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.classList.add(className);
+  button.addEventListener('click', onClickHandler);
+  return button;
 };
 
-export const renderResetButton = (onClickHandler) => {
-  const resetButton = document.createElement('button');
-  resetButton.textContent = 'Reset';
-  resetButton.classList.add('reset-btn');
+export const createRandomizeButton = (onClickHandler) =>
+  createButton('Randomize', 'random-btn', onClickHandler);
 
-  resetButton.addEventListener('click', onClickHandler);
+export const createResetButton = (onClickHandler) =>
+  createButton('Reset', 'reset-btn', onClickHandler);
 
-  return resetButton;
-};
+export const createStartGameButton = (onClickHandler) =>
+  createButton('Start', 'start-game-btn', onClickHandler);
 
-export const renderStartGameButton = (onClickHandler) => {
-  const startGameButton = document.createElement('button');
-  startGameButton.textContent = 'Start';
-  startGameButton.classList.add('start-game-btn');
-
-  startGameButton.addEventListener('click', onClickHandler);
-
-  return startGameButton;
-};
-
-export const renderNewGameButton = (onClickHandler) => {
-  const newGameButton = document.createElement('button');
-  newGameButton.textContent = 'New Game';
-  newGameButton.classList.add('new-game-btn');
-  newGameButton.addEventListener('click', onClickHandler);
-  return newGameButton;
-};
+export const createNewGameButton = (onClickHandler) =>
+  createButton('New Game', 'new-game-btn', onClickHandler);
 
 export const enableBoardDropZones = (container) => {
   const cells = container.querySelectorAll('.cell');

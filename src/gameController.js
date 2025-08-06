@@ -5,7 +5,7 @@ import {
   renderGameboardGrid,
   renderDockLayout,
   updatePlayerGameBoard,
-  renderNewGameButton,
+  createNewGameButton,
   displayGameMessage
 } from './domController.js';
 
@@ -200,7 +200,7 @@ const startGame = () => {
   setupComputerGameboard();
   setupAttackListeners();
   handleTurn();
-  mainContainer.appendChild(renderNewGameButton(newGame));
+  mainContainer.appendChild(createNewGameButton(newGame));
 };
 
 const setupAttackListeners = () => {
