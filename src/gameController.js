@@ -3,7 +3,7 @@ import Ship from './Ship.js';
 import {
   enableBoardDropZones,
   renderGameboardGrid,
-  renderDockLayout,
+  renderDockContainer,
   updatePlayerGameBoard,
   createNewGameButton,
   displayGameMessage
@@ -46,7 +46,7 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
   renderGameboardGrid(player1, player1Board);
-  renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
+  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
   displayGameMessage();
 };
@@ -171,12 +171,12 @@ const clearDraggableShipsFromDock = () => {
 const resetBoard = () => {
   player1.gameboard.reset();
 
-  const dock = document.querySelector('.dock-layout');
+  const dock = document.querySelector('.dock-container');
   if (dock) dock.remove();
 
   const fleet = createFleet(player1);
   updatePlayerGameBoard(player1, player1Board);
-  renderDockLayout(fleet, randomizePlayerPlacement, resetBoard, startGame);
+  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
   gameState.shouldShowStartMessage = true;
 };
@@ -186,7 +186,7 @@ const startGame = () => {
     return;
   }
 
-  const dock = document.querySelector('.dock-layout');
+  const dock = document.querySelector('.dock-container');
   if (dock) dock.remove();
 
   setRandomStartingPlayer();
@@ -392,7 +392,7 @@ const computerAttacks = () => {
 };
 
 const isPlayerFleetPlaced = () => {
-  const shipyard = document.querySelector('.shipyard-container');
+  const shipyard = document.querySelector('.dock-shipyard');
   return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
 };
 

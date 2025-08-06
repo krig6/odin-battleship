@@ -48,61 +48,76 @@ export const updatePlayerGameBoard = (player, container) => {
   renderGameboardGrid(player, container);
 };
 
-export const renderShipyard = () => {
-  const mainContainer = document.getElementById('main-container');
-  const shipyardElement = renderDraggableShips();
-  mainContainer.appendChild(shipyardElement);
+export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
+  const gameContainer = document.getElementById('game-container');
+
+  const dockContainer = document.createElement('div');
+  dockContainer.classList.add('dock-container');
+
+  const draggableShips = createDraggableShips(fleet);
+  const randomizeBtn = createRandomizeButton(onRandomize);
+  const resetBtn = createResetButton(onReset);
+  const startBtn = createStartGameButton(onStart);
+
+  const dockControls = document.createElement('div');
+  dockControls.classList.add('dock-controls');
+  dockControls.append(randomizeBtn, resetBtn, startBtn);
+
+  dockContainer.append(draggableShips, dockControls);
+  gameContainer.append(dockContainer);
 };
 
 const createDraggableShips = (fleetConfig) => {
-  const shipyardContainer = document.createElement('div');
-  shipyardContainer.classList.add('shipyard-container');
+  const dockShipyard = document.createElement('div');
+  dockShipyard.classList.add('dock-shipyard');
 
-  for (const ship of Object.values(fleetConfig)) {
-    const shipElement = document.createElement('div');
-    shipElement.classList.add('ship');
-    shipElement.setAttribute('draggable', true);
-    shipElement.dataset.type = ship.type;
-    shipElement.dataset.length = ship.length;
+  const ships = Object.values(fleetConfig);
+
+  for (const { length, type } of ships) {
+    const ship = document.createElement('div');
+    ship.classList.add('ship');
+    ship.setAttribute('draggable', true);
+    ship.dataset.type = type;
+    ship.dataset.length = length;
 
     let orientation = 'horizontal';
     let dragOffset = 0;
 
-    shipElement.addEventListener('mousedown', (e) => {
-      const part = e.target.closest('.ship-segment');
+    ship.addEventListener('mousedown', (e) => {
+      const part = e.target.closest('.segment');
       dragOffset = part ? [...part.parentNode.children].indexOf(part) : 0;
-      shipElement.dataset.offset = dragOffset;
+      ship.dataset.offset = dragOffset;
     });
 
-    shipElement.addEventListener('click', () => {
+    ship.addEventListener('click', () => {
       orientation = orientation === 'horizontal' ? 'vertical' : 'horizontal';
-      shipElement.classList.toggle('vertical');
-      shipElement.dataset.orientation = orientation;
+      ship.classList.toggle('vertical');
+      ship.dataset.orientation = orientation;
     });
 
-    shipElement.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('text/ship-type', ship.type);
-      e.dataTransfer.setData('text/ship-length', ship.length);
+    ship.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/ship-type', type);
+      e.dataTransfer.setData('text/ship-length', length);
       e.dataTransfer.setData('text/orientation', orientation);
       e.dataTransfer.setData('text/drag-offset', dragOffset);
       e.dataTransfer.effectAllowed = 'move';
-      shipElement.classList.add('dragging');
+      ship.classList.add('dragging');
     });
 
-    shipElement.addEventListener('dragend', () => {
-      shipElement.classList.remove('dragging');
+    ship.addEventListener('dragend', () => {
+      ship.classList.remove('dragging');
     });
 
-    for (let i = 0; i < ship.length; i++) {
+    for (let shipIndex = 0; shipIndex < length; shipIndex++) {
       const segment = document.createElement('div');
-      segment.classList.add('ship-segment', ship.type);
-      shipElement.appendChild(segment);
+      segment.classList.add('segment', type);
+      ship.appendChild(segment);
     }
 
-    shipyardContainer.appendChild(shipElement);
+    dockShipyard.appendChild(ship);
   }
 
-  return shipyardContainer;
+  return dockShipyard;
 };
 
 const createButton = (label, className, onClickHandler) => {
