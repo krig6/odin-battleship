@@ -2,6 +2,9 @@ import Player from './Player.js';
 import Ship from './Ship.js';
 
 import {
+  mainContainer,
+  player1Board,
+  player2Board,
   enableBoardDropZones,
   renderGameboardGrid,
   renderDockContainer,
@@ -21,9 +24,6 @@ import {
 
 const player1 = new Player('player1');
 const player2 = new Player('player2', 'Computer', true);
-const player1Board = document.getElementById('player-one-board');
-const player2Board = document.getElementById('player-two-board');
-const mainContainer = document.getElementById('main-container');
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },

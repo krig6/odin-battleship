@@ -1,4 +1,8 @@
 export const renderGameboardGrid = (player, container, revealShips = true) => {
+export const player1Board = document.getElementById('player-one-board');
+export const player2Board = document.getElementById('player-two-board');
+export const mainContainer = document.getElementById('main-container');
+
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
   const boardGrid = player.gameboard.getGrid();
