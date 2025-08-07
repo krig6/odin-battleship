@@ -7,7 +7,8 @@ import {
   renderDockContainer,
   updatePlayerGameBoard,
   createNewGameButton,
-  displayGameMessage
+  displayGameMessage,
+  clearTurnIndicators
 } from './domController.js';
 
 import {
@@ -268,10 +269,6 @@ const newGame = () => {
   setupPlayerOnePlacementScreen();
 };
 
-const clearTurnIndicators = () => {
-  player1Board.classList.remove('turn');
-  player2Board.classList.remove('turn');
-};
 
 export const handleTurn = () => {
   if (!gameState.isFirstTurn) {

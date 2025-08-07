@@ -190,3 +190,9 @@ export const displayGameMessage = (gameMessage = 'Drag and place your ships.') =
 
   messageContainer.appendChild(message);
 };
+
+export const clearTurnIndicators = () => {
+  player1Board.classList.remove('turn');
+  player2Board.classList.remove('turn');
+};
+
