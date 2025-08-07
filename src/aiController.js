@@ -40,7 +40,6 @@ export const aiAttacks = () => {
 
     if (!canShoot) continue;
     const result = defender.gameboard.receiveAttack(row, column);
-    gameState.currentTurn = defender.id;
     updatePlayerGameBoard(defender, defenderBoard);
 
     if (result === 'hit') {
@@ -76,7 +75,6 @@ export const aiAttacks = () => {
     }
 
     const result = defender.gameboard.receiveAttack(row, column);
-    gameState.currentTurn = defender.id;
     updatePlayerGameBoard(defender, defenderBoard);
 
     if (result === 'hit') {

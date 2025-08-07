@@ -34,7 +34,7 @@ const FLEET_CONFIG = [
 const gameState = {
   currentTurn: null,
   aiTimeoutId: null,
-  shouldShowStartMessage: true,
+  isFirstTurn: true,
   gameHasEnded: false,
   player1ClickHandler: null,
   player2ClickHandler: null
@@ -186,7 +186,7 @@ const resetBoard = () => {
   updatePlayerGameBoard(player1, player1Board);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
-  gameState.shouldShowStartMessage = true;
+  gameState.isFirstTurn = true;
 };
 
 const startGame = () => {
@@ -239,7 +239,7 @@ const resetGameState = () => {
 
   gameState.currentTurn = null;
   gameState.aiTimeoutId = null;
-  gameState.shouldShowStartMessage = true;
+  gameState.isFirstTurn = true;
   gameState.gameHasEnded = false;
   gameState.player1ClickHandler = null;
   gameState.player2ClickHandler = null;
@@ -274,13 +274,17 @@ const clearTurnIndicators = () => {
 };
 
 export const handleTurn = () => {
+  if (!gameState.isFirstTurn) {
+    gameState.currentTurn = gameState.currentTurn === player1.id ? player2.id : player1.id;
+  }
+
   const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
 
-  if (currentPlayer.isComputer && currentPlayer === player2) {
+  if (currentPlayer.isComputer) {
     player2Board.classList.add('turn');
     player1Board.classList.remove('turn');
 
-    if (!gameState.shouldShowStartMessage) {
+    if (!gameState.isFirstTurn) {
       displayGameMessage('Opponent\'s turn.');
     }
 
@@ -290,11 +294,11 @@ export const handleTurn = () => {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
 
-    if (!gameState.shouldShowStartMessage) {
+    if (!gameState.isFirstTurn) {
       displayGameMessage('Your turn.');
     }
   }
-  gameState.shouldShowStartMessage = false;
+  gameState.isFirstTurn = false;
 };
 
 const isPlayerFleetPlaced = () => {
@@ -326,7 +330,6 @@ const handleAttacks = (attacker, defender, defenderBoard) => {
         gameOver(attacker.id);
         return;
       }
-      gameState.currentTurn = defender.id;
     } catch (err) {
       displayGameMessage(err.message);
       return;
