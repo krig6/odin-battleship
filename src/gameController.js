@@ -1,5 +1,6 @@
 import Player from './Player.js';
 import Ship from './Ship.js';
+
 import {
   enableBoardDropZones,
   renderGameboardGrid,
@@ -8,6 +9,13 @@ import {
   createNewGameButton,
   displayGameMessage
 } from './domController.js';
+
+import {
+  resetAiState,
+  getAiAttackDelay,
+  aiAttacks,
+  initializeAi
+} from './aiController.js';
 
 const player1 = new Player('player1');
 const player2 = new Player('player2', 'Computer', true);
@@ -129,7 +137,7 @@ const attemptToRotateShip = (gameboard, shipId) => {
   }
 };
 
-const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
+const autoPlaceFleet = (player, board, afterPlacement = () => { }) => {
   player.gameboard.reset();
   const fleet = createFleet(player);
 
@@ -153,7 +161,7 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
   }
 
   afterPlacement();
-  updatePlayerGameBoard(player, boardElement);
+  updatePlayerGameBoard(player, board);
 };
 
 const randomizePlayerPlacement = () => {
@@ -199,6 +207,7 @@ const startGame = () => {
 
   setupComputerGameboard();
   setupAttackListeners();
+  initializeAi(gameState, player1, player1Board, gameOver);
   handleTurn();
   mainContainer.appendChild(createNewGameButton(newGame));
 };
@@ -264,7 +273,7 @@ const clearTurnIndicators = () => {
   player2Board.classList.remove('turn');
 };
 
-const handleTurn = () => {
+export const handleTurn = () => {
   const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
 
   if (currentPlayer.isComputer && currentPlayer === player2) {
@@ -274,8 +283,9 @@ const handleTurn = () => {
     if (!gameState.shouldShowStartMessage) {
       displayGameMessage('Opponent\'s turn.');
     }
-    const aiAttackDelay = aiState.getAttackDelay();
-    gameState.aiTimeoutId = setTimeout(computerAttacks, aiAttackDelay);
+
+    const aiAttackDelay = getAiAttackDelay();
+    gameState.aiTimeoutId = setTimeout(aiAttacks, aiAttackDelay);
   } else {
     player1Board.classList.add('turn');
     player2Board.classList.remove('turn');
@@ -285,110 +295,6 @@ const handleTurn = () => {
     }
   }
   gameState.shouldShowStartMessage = false;
-};
-
-const aiState = {
-  hunting: false,
-  targetQueue: [],
-  getAttackDelay() {
-    return this.hunting
-      ? Math.floor(Math.random() * (900 - 500 + 1)) + 500
-      : Math.floor(Math.random() * (2500 - 1200 + 1)) + 1200;
-  }
-};
-
-const resetAiState = () => {
-  aiState.hunting = false;
-  aiState.targetQueue = [];
-};
-
-const getAdjacentCells = (row, col) => {
-  const directions = [
-    [row, col - 1],  // left
-    [row, col + 1], // right
-    [row - 1, col], // up
-    [row + 1, col] // down
-  ];
-
-  return directions.filter(([row, col]) =>
-    row >= 0 && row < 10 &&
-    col >= 0 && col < 10 &&
-    !player1.gameboard.successfulHits.has(`${row},${col}`) &&
-    !player1.gameboard.missedShots.has(`${row},${col}`)
-  );
-};
-
-const computerAttacks = () => {
-  let hasAttacked = false;
-  let attempt = 0;
-
-  if (aiState.hunting && aiState.targetQueue.length > 0) {
-    while (!hasAttacked && aiState.targetQueue.length > 0) {
-      const adjacentKey = aiState.targetQueue.shift();
-      const [r, c] = adjacentKey;
-      const canShoot =
-        !player1.gameboard.successfulHits.has(`${r},${c}`) &&
-        !player1.gameboard.missedShots.has(`${r},${c}`);
-
-      if (canShoot) {
-        const result = player1.gameboard.receiveAttack(r, c);
-        gameState.currentTurn = player1.id;
-        hasAttacked = true;
-        updatePlayerGameBoard(player1, player1Board);
-
-        if (result === 'hit') {
-          const ship = player1.gameboard.getGrid()[r][c];
-          const nextTargets = getAdjacentCells(r, c);
-          aiState.targetQueue.push(...nextTargets);
-
-          if (ship && ship.isSunk) {
-            resetAiState();
-          }
-        }
-        if (player1.gameboard.allShipsSunk) {
-          gameOver('player2');
-          return;
-        }
-        break;
-      }
-    }
-  }
-  if (!hasAttacked) {
-    const remainingShipSizes = getRemainingShipSizes();
-    while (attempt < 100) {
-      let r = Math.floor(Math.random() * 10);
-      let c = Math.floor(Math.random() * 10);
-      const key = `${r},${c}`;
-      const canShoot =
-        !player1.gameboard.successfulHits.has(key) &&
-        !player1.gameboard.missedShots.has(key);
-
-      if (canShoot && canFitAnyShip(r, c, remainingShipSizes)) {
-        const result = player1.gameboard.receiveAttack(r, c);
-        gameState.currentTurn = player1.id;
-        hasAttacked = true;
-        updatePlayerGameBoard(player1, player1Board);
-
-        if (result === 'hit') {
-          aiState.hunting = true;
-          const ship = player1.gameboard.getGrid()[r][c];
-          const nextTargets = getAdjacentCells(r, c);
-          aiState.targetQueue.push(...nextTargets);
-
-          if (ship && ship.isSunk) {
-            resetAiState();
-          }
-        }
-        if (player1.gameboard.allShipsSunk) {
-          gameOver('player2');
-          return;
-        }
-        break;
-      }
-      attempt++;
-    }
-  }
-  handleTurn();
 };
 
 const isPlayerFleetPlaced = () => {
@@ -449,36 +355,3 @@ const gameOver = (winner) => {
   player2Board.style.pointerEvents = 'none';
 };
 
-const canFitAnyShip = (row, col, shipSizes) => {
-  const boardSize = 10;
-  for (const size of shipSizes) {
-    let horizontalFit = true;
-    let verticalFit = true;
-
-    for (let offset = 0; offset < size; offset++) {
-      if (
-        col + size > boardSize ||
-        player1.gameboard.successfulHits.has(`${row},${col + offset}`) ||
-        player1.gameboard.missedShots.has(`${row},${col + offset}`)
-      ) {
-        horizontalFit = false;
-      }
-      if (
-        row + size > boardSize ||
-        player1.gameboard.successfulHits.has(`${row + offset},${col}`) ||
-        player1.gameboard.missedShots.has(`${row + offset},${col}`)
-      ) {
-        verticalFit = false;
-      }
-    }
-
-    if (horizontalFit || verticalFit) return true;
-  }
-  return false;
-};
-
-const getRemainingShipSizes = () => {
-  return Object.values(player1.gameboard.fleet)
-    .filter(ship => !ship.isSunk)
-    .map(ship => ship.length);
-};
