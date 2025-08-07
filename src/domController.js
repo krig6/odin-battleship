@@ -196,3 +196,12 @@ export const clearTurnIndicators = () => {
   player2Board.classList.remove('turn');
 };
 
+export const setActiveBoard = (currentPlayer) => {
+  if (currentPlayer.isComputer) {
+    player2Board.classList.add('turn');
+    player1Board.classList.remove('turn');
+  } else {
+    player1Board.classList.add('turn');
+    player2Board.classList.remove('turn');
+  }
+};

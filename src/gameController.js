@@ -8,6 +8,7 @@ import {
   updatePlayerGameBoard,
   createNewGameButton,
   displayGameMessage,
+  setActiveBoard,
   clearTurnIndicators
 } from './domController.js';
 
@@ -278,8 +279,7 @@ export const handleTurn = () => {
   const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
 
   if (currentPlayer.isComputer) {
-    player2Board.classList.add('turn');
-    player1Board.classList.remove('turn');
+    setActiveBoard(currentPlayer);
 
     if (!gameState.isFirstTurn) {
       displayGameMessage('Opponent\'s turn.');
@@ -288,8 +288,7 @@ export const handleTurn = () => {
     const aiAttackDelay = getAiAttackDelay();
     gameState.aiTimeoutId = setTimeout(aiAttacks, aiAttackDelay);
   } else {
-    player1Board.classList.add('turn');
-    player2Board.classList.remove('turn');
+    setActiveBoard(currentPlayer);
 
     if (!gameState.isFirstTurn) {
       displayGameMessage('Your turn.');
