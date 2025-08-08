@@ -6,9 +6,8 @@ import {
   player1Board,
   player2Board,
   enableBoardDropZones,
-  renderGameboardGrid,
+  renderPlayerBoard,
   renderDockContainer,
-  updatePlayerGameBoard,
   createNewGameButton,
   displayGameMessage,
   setActiveBoard,
@@ -55,7 +54,7 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
-  renderGameboardGrid(player1, player1Board);
+  renderPlayerBoard(player1, player1Board);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
   displayGameMessage();
@@ -68,7 +67,7 @@ player1Board.addEventListener('place-ship', (e) => {
     const ship = player1.gameboard.fleet[shipType];
 
     player1.gameboard.placeShip(startRow, startCol, ship, orientation);
-    updatePlayerGameBoard(player1, player1Board);
+    renderPlayerBoard(player1, player1Board);
     enableBoardDropZones(player1Board);
 
     const shipElement = document.querySelector(`.ship[data-type="${shipType}"]`);
@@ -86,7 +85,7 @@ player1Board.addEventListener('rotate-ship', (e) => {
   const wasRotated = attemptToRotateShip(player1.gameboard, shipId);
   if (!wasRotated) return;
 
-  updatePlayerGameBoard(player1, player1Board);
+  renderPlayerBoard(player1, player1Board);
   enableBoardDropZones(player1Board);
 });
 
@@ -139,7 +138,7 @@ const attemptToRotateShip = (gameboard, shipId) => {
   }
 };
 
-const autoPlaceFleet = (player, board, afterPlacement = () => { }) => {
+const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
   player.gameboard.reset();
   const fleet = createFleet(player);
 
@@ -163,7 +162,7 @@ const autoPlaceFleet = (player, board, afterPlacement = () => { }) => {
   }
 
   afterPlacement();
-  updatePlayerGameBoard(player, board);
+  renderPlayerBoard(player, boardElement);
 };
 
 const randomizePlayerPlacement = () => {
@@ -185,7 +184,7 @@ const resetBoard = () => {
   if (dock) dock.remove();
 
   const fleet = createFleet(player1);
-  updatePlayerGameBoard(player1, player1Board);
+  renderPlayerBoard(player1, player1Board);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1Board);
   gameState.isFirstTurn = true;
@@ -304,11 +303,11 @@ const isPlayerFleetPlaced = () => {
 
 const setupComputerGameboard = () => {
   randomizeComputerPlacement();
-  renderGameboardGrid(player2, player2Board, false);
+  renderPlayerBoard(player2, player2Board, false);
   player2Board.style.display = 'grid';
 };
 
-const handleAttacks = (attacker, defender, defenderBoard) => {
+const handleAttacks = (attacker, defender, defenderBoardElement) => {
   return (e) => {
     if (gameState.currentTurn !== attacker.id || gameState.gameHasEnded) return;
 
@@ -320,7 +319,7 @@ const handleAttacks = (attacker, defender, defenderBoard) => {
 
     try {
       defender.gameboard.receiveAttack(row, col);
-      renderGameboardGrid(defender, defenderBoard, false);
+      renderPlayerBoard(defender, defenderBoardElement, false);
 
       if (defender.gameboard.allShipsSunk) {
         gameOver(attacker.id);

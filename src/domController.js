@@ -2,11 +2,11 @@ export const player1Board = document.getElementById('player-one-board');
 export const player2Board = document.getElementById('player-two-board');
 export const mainContainer = document.getElementById('main-container');
 
-export const renderGameboardGrid = (player, board, revealShips = true) => {
+export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
   const boardGrid = player.gameboard.getGrid();
-  board.innerHTML = '';
+  boardElement.innerHTML = '';
 
   for (let row = 0; row < boardGrid.length; row++) {
     for (let column = 0; column < boardGrid[row].length; column++) {
@@ -43,13 +43,9 @@ export const renderGameboardGrid = (player, board, revealShips = true) => {
         cellElement.dataset.shipId = cellValue.id;
       }
 
-      board.appendChild(cellElement);
+      boardElement.appendChild(cellElement);
     }
   }
-};
-
-export const updatePlayerGameBoard = (player, board) => {
-  renderGameboardGrid(player, board);
 };
 
 export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {

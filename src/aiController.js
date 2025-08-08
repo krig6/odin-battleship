@@ -1,12 +1,12 @@
-import { updatePlayerGameBoard } from './domController.js';
+import { renderPlayerBoard } from './domController.js';
 import { handleTurn } from './gameController.js';
 
-let gameState, defender, defenderBoard, onGameOver;
+let gameState, defender, defenderBoardElement, onGameOver;
 
-export const initializeAi = (_gameState, _defender, _defenderBoard, _onGameOver) => {
+export const initializeAi = (_gameState, _defender, _defenderBoardElement, _onGameOver) => {
   gameState = _gameState;
   defender = _defender;
-  defenderBoard = _defenderBoard;
+  defenderBoardElement = _defenderBoardElement;
   onGameOver = _onGameOver;
 };
 
@@ -40,7 +40,7 @@ export const aiAttacks = () => {
 
     if (!canShoot) continue;
     const result = defender.gameboard.receiveAttack(row, column);
-    updatePlayerGameBoard(defender, defenderBoard);
+    renderPlayerBoard(defender, defenderBoardElement);
 
     if (result === 'hit') {
       const ship = defender.gameboard.getGrid()[row][column];
@@ -75,7 +75,7 @@ export const aiAttacks = () => {
     }
 
     const result = defender.gameboard.receiveAttack(row, column);
-    updatePlayerGameBoard(defender, defenderBoard);
+    renderPlayerBoard(defender, defenderBoardElement);
 
     if (result === 'hit') {
       aiState.hunting = true;
