@@ -1,9 +1,10 @@
 import { renderPlayerBoard } from './domController.js';
 import { handleTurn } from './gameController.js';
 
-let gameState, defender, defenderBoardElement, onGameOver;
+let gameState, attacker, defender, defenderBoardElement, onGameOver;
 
-export const initializeAi = (_gameState, _defender, _defenderBoardElement, _onGameOver) => {
+export const initializeAi = (_gameState, _attacker, _defender, _defenderBoardElement, _onGameOver) => {
+  attacker = _attacker;
   gameState = _gameState;
   defender = _defender;
   defenderBoardElement = _defenderBoardElement;
