@@ -221,8 +221,8 @@ const setupAttackListeners = () => {
     player1Board.removeEventListener('click', gameState.player2ClickHandler);
   }
 
-  gameState.player1ClickHandler = handleAttacks(player1, player2, player2Board);
-  gameState.player2ClickHandler = handleAttacks(player2, player1, player1Board);
+  gameState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2Board);
+  gameState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1Board);
 
   player1Board.addEventListener('click', gameState.player2ClickHandler);
   player2Board.addEventListener('click', gameState.player1ClickHandler);
@@ -307,29 +307,57 @@ const setupComputerGameboard = () => {
   player2Board.style.display = 'grid';
 };
 
-const handleAttacks = (attacker, defender, defenderBoardElement) => {
-  return (e) => {
-    if (gameState.currentTurn !== attacker.id || gameState.gameHasEnded) return;
+export const executeAttack = (attacker, defender, row, column) => {
+  if (gameState.gameHasEnded || attacker.id !== gameState.currentTurn) {
+    return {
+      success: false,
+      allShipsSunk: false,
+      errorMessage: null
+    };
+  }
 
+  try {
+    const result = defender.gameboard.receiveAttack(row, column);
+    return {
+      success: true,
+      allShipsSunk: defender.gameboard.allShipsSunk,
+      errorMessage: null,
+      result: result
+    };
+  } catch (err) {
+    return {
+      success: false,
+      allShipsSunk: false,
+      errorMessage: err.message
+    };
+  }
+};
+
+const createPlayerAttackHandler = (attacker, defender, defenderBoardElement) => {
+  return (e) => {
     const cell = e.target;
     if (!cell.classList.contains('cell')) return;
 
     const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.column);
+    const column = parseInt(cell.dataset.column);
 
-    try {
-      defender.gameboard.receiveAttack(row, col);
+    const { success, allShipsSunk, errorMessage } = executeAttack(attacker, defender, row, column);
+
+    if (errorMessage) {
+      displayGameMessage(errorMessage);
+      return;
+    }
+
+    if (success) {
       renderPlayerBoard(defender, defenderBoardElement, false);
 
-      if (defender.gameboard.allShipsSunk) {
+      if (allShipsSunk) {
         gameOver(attacker.id);
         return;
       }
-    } catch (err) {
-      displayGameMessage(err.message);
-      return;
+
+      handleTurn();
     }
-    handleTurn();
   };
 };
 
