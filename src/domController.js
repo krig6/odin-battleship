@@ -1,6 +1,6 @@
-export const player1Board = document.getElementById('player-one-board');
-export const player2Board = document.getElementById('player-two-board');
-export const mainContainer = document.getElementById('main-container');
+export const player1BoardElement = document.getElementById('player-one-board');
+export const player2BoardElement = document.getElementById('player-two-board');
+export const mainContainerElement = document.getElementById('main-container');
 
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   const successfulHits = player.gameboard.successfulHits;
@@ -49,75 +49,75 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
 };
 
 export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
-  const gameContainer = document.getElementById('game-container');
+  const gameContainerElement = document.getElementById('game-container');
 
-  const dockContainer = document.createElement('div');
-  dockContainer.classList.add('dock-container');
+  const dockContainerElement = document.createElement('div');
+  dockContainerElement.classList.add('dock-container');
 
   const draggableShips = createDraggableShips(fleet);
-  const randomizeBtn = createRandomizeButton(onRandomize);
-  const resetBtn = createResetButton(onReset);
-  const startBtn = createStartGameButton(onStart);
+  const randomizeBtnElement = createRandomizeButton(onRandomize);
+  const resetBtnElement = createResetButton(onReset);
+  const startBtnElement = createStartGameButton(onStart);
 
   const dockControls = document.createElement('div');
   dockControls.classList.add('dock-controls');
-  dockControls.append(randomizeBtn, resetBtn, startBtn);
+  dockControls.append(randomizeBtnElement, resetBtnElement, startBtnElement);
 
-  dockContainer.append(draggableShips, dockControls);
-  gameContainer.append(dockContainer);
+  dockContainerElement.append(draggableShips, dockControls);
+  gameContainerElement.append(dockContainerElement);
 };
 
 const createDraggableShips = (fleetConfig) => {
-  const dockShipyard = document.createElement('div');
-  dockShipyard.classList.add('dock-shipyard');
+  const dockShipyardElement = document.createElement('div');
+  dockShipyardElement.classList.add('dock-shipyard');
 
   const ships = Object.values(fleetConfig);
 
   for (const { length, type } of ships) {
-    const ship = document.createElement('div');
-    ship.classList.add('ship');
-    ship.setAttribute('draggable', true);
-    ship.dataset.type = type;
-    ship.dataset.length = length;
+    const shipElement = document.createElement('div');
+    shipElement.classList.add('ship');
+    shipElement.setAttribute('draggable', true);
+    shipElement.dataset.type = type;
+    shipElement.dataset.length = length;
 
     let orientation = 'horizontal';
     let dragOffset = 0;
 
-    ship.addEventListener('mousedown', (e) => {
+    shipElement.addEventListener('mousedown', (e) => {
       const part = e.target.closest('.segment');
       dragOffset = part ? [...part.parentNode.children].indexOf(part) : 0;
-      ship.dataset.offset = dragOffset;
+      shipElement.dataset.offset = dragOffset;
     });
 
-    ship.addEventListener('click', () => {
+    shipElement.addEventListener('click', () => {
       orientation = orientation === 'horizontal' ? 'vertical' : 'horizontal';
-      ship.classList.toggle('vertical');
-      ship.dataset.orientation = orientation;
+      shipElement.classList.toggle('vertical');
+      shipElement.dataset.orientation = orientation;
     });
 
-    ship.addEventListener('dragstart', (e) => {
+    shipElement.addEventListener('dragstart', (e) => {
       e.dataTransfer.setData('text/ship-type', type);
       e.dataTransfer.setData('text/ship-length', length);
       e.dataTransfer.setData('text/orientation', orientation);
       e.dataTransfer.setData('text/drag-offset', dragOffset);
       e.dataTransfer.effectAllowed = 'move';
-      ship.classList.add('dragging');
+      shipElement.classList.add('dragging');
     });
 
-    ship.addEventListener('dragend', () => {
-      ship.classList.remove('dragging');
+    shipElement.addEventListener('dragend', () => {
+      shipElement.classList.remove('dragging');
     });
 
-    for (let shipIndex = 0; shipIndex < length; shipIndex++) {
-      const segment = document.createElement('div');
-      segment.classList.add('segment', type);
-      ship.appendChild(segment);
+    for (let shipElementIndex = 0; shipElementIndex < length; shipElementIndex++) {
+      const segmentElement = document.createElement('div');
+      segmentElement.classList.add('segment', type);
+      shipElement.appendChild(segmentElement);
     }
 
-    dockShipyard.appendChild(ship);
+    dockShipyardElement.appendChild(shipElement);
   }
 
-  return dockShipyard;
+  return dockShipyardElement;
 };
 
 const createButton = (label, className, onClickHandler) => {
@@ -183,25 +183,25 @@ export const enableBoardDropZones = (container) => {
 };
 
 export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
-  const messageContainer = document.getElementById('message-container');
+  const messageContainerElement = document.getElementById('message-container');
   const message = document.createElement('p');
-  messageContainer.innerHTML = '';
+  messageContainerElement.innerHTML = '';
   message.textContent = gameMessage;
 
-  messageContainer.appendChild(message);
+  messageContainerElement.appendChild(message);
 };
 
 export const clearTurnIndicators = () => {
-  player1Board.classList.remove('turn');
-  player2Board.classList.remove('turn');
+  player1BoardElement.classList.remove('turn');
+  player2BoardElement.classList.remove('turn');
 };
 
 export const setActiveBoard = (currentPlayer) => {
   if (currentPlayer.isComputer) {
-    player2Board.classList.add('turn');
-    player1Board.classList.remove('turn');
+    player2BoardElement.classList.add('turn');
+    player1BoardElement.classList.remove('turn');
   } else {
-    player1Board.classList.add('turn');
-    player2Board.classList.remove('turn');
+    player1BoardElement.classList.add('turn');
+    player2BoardElement.classList.remove('turn');
   }
 };

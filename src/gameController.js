@@ -2,9 +2,9 @@ import Player from './Player.js';
 import Ship from './Ship.js';
 
 import {
-  mainContainer,
-  player1Board,
-  player2Board,
+  mainContainerElement,
+  player1BoardElement,
+  player2BoardElement,
   enableBoardDropZones,
   renderPlayerBoard,
   renderDockContainer,
@@ -54,21 +54,21 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
-  renderPlayerBoard(player1, player1Board);
+  renderPlayerBoard(player1, player1BoardElement);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
-  enableBoardDropZones(player1Board);
+  enableBoardDropZones(player1BoardElement);
   displayGameMessage();
 };
 
-player1Board.addEventListener('place-ship', (e) => {
+player1BoardElement.addEventListener('place-ship', (e) => {
   const { shipType, startRow, startColumn, orientation } = e.detail;
 
   try {
     const ship = player1.gameboard.fleet[shipType];
 
     player1.gameboard.placeShip(startRow, startColumn, ship, orientation);
-    renderPlayerBoard(player1, player1Board);
-    enableBoardDropZones(player1Board);
+    renderPlayerBoard(player1, player1BoardElement);
+    enableBoardDropZones(player1BoardElement);
 
     const shipElement = document.querySelector(`.ship[data-type="${shipType}"]`);
     if (shipElement) {
@@ -79,14 +79,14 @@ player1Board.addEventListener('place-ship', (e) => {
   }
 });
 
-player1Board.addEventListener('rotate-ship', (e) => {
+player1BoardElement.addEventListener('rotate-ship', (e) => {
   const shipId = e.detail.shipId;
 
   const wasRotated = attemptToRotateShip(player1.gameboard, shipId);
   if (!wasRotated) return;
 
-  renderPlayerBoard(player1, player1Board);
-  enableBoardDropZones(player1Board);
+  renderPlayerBoard(player1, player1BoardElement);
+  enableBoardDropZones(player1BoardElement);
 });
 
 const attemptToRotateShip = (gameboard, shipId) => {
@@ -166,11 +166,11 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
 };
 
 const randomizePlayerPlacement = () => {
-  autoPlaceFleet(player1, player1Board, clearDraggableShipsFromDock);
+  autoPlaceFleet(player1, player1BoardElement, clearDraggableShipsFromDock);
 };
 
 const randomizeComputerPlacement = () => {
-  autoPlaceFleet(player2, player2Board);
+  autoPlaceFleet(player2, player2BoardElement);
 };
 
 const clearDraggableShipsFromDock = () => {
@@ -184,9 +184,9 @@ const resetBoard = () => {
   if (dock) dock.remove();
 
   const fleet = createFleet(player1);
-  renderPlayerBoard(player1, player1Board);
+  renderPlayerBoard(player1, player1BoardElement);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
-  enableBoardDropZones(player1Board);
+  enableBoardDropZones(player1BoardElement);
   gameState.isFirstTurn = true;
 };
 
@@ -208,24 +208,24 @@ const startGame = () => {
 
   setupComputerGameboard();
   setupAttackListeners();
-  initializeAi(gameState, player2, player1, player1Board, gameOver);
+  initializeAi(gameState, player2, player1, player1BoardElement, gameOver);
   handleTurn();
-  mainContainer.appendChild(createNewGameButton(newGame));
+  mainContainerElement.appendChild(createNewGameButton(newGame));
 };
 
 const setupAttackListeners = () => {
   if (gameState.player1ClickHandler) {
-    player2Board.removeEventListener('click', gameState.player1ClickHandler);
+    player2BoardElement.removeEventListener('click', gameState.player1ClickHandler);
   }
   if (gameState.player2ClickHandler) {
-    player1Board.removeEventListener('click', gameState.player2ClickHandler);
+    player1BoardElement.removeEventListener('click', gameState.player2ClickHandler);
   }
 
-  gameState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2Board);
-  gameState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1Board);
+  gameState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2BoardElement);
+  gameState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1BoardElement);
 
-  player1Board.addEventListener('click', gameState.player2ClickHandler);
-  player2Board.addEventListener('click', gameState.player1ClickHandler);
+  player1BoardElement.addEventListener('click', gameState.player2ClickHandler);
+  player2BoardElement.addEventListener('click', gameState.player1ClickHandler);
 };
 
 const setRandomStartingPlayer = () => {
@@ -250,9 +250,9 @@ const newGame = () => {
   resetGameState();
   resetAiState();
 
-  if (player2Board) {
-    player2Board.style.display = 'none';
-    player2Board.style.pointerEvents = 'auto';
+  if (player2BoardElement) {
+    player2BoardElement.style.display = 'none';
+    player2BoardElement.style.pointerEvents = 'auto';
   }
 
   clearTurnIndicators();
@@ -260,9 +260,9 @@ const newGame = () => {
   player1.gameboard.reset();
   player2.gameboard.reset();
 
-  const newGameButton = document.querySelector('.new-game-btn');
-  if (newGameButton) {
-    newGameButton.remove();
+  const newGameButtonElement = document.querySelector('.new-game-btn');
+  if (newGameButtonElement) {
+    newGameButtonElement.remove();
   }
 
   setRandomStartingPlayer();
@@ -303,8 +303,8 @@ const isPlayerFleetPlaced = () => {
 
 const setupComputerGameboard = () => {
   randomizeComputerPlacement();
-  renderPlayerBoard(player2, player2Board, false);
-  player2Board.style.display = 'grid';
+  renderPlayerBoard(player2, player2BoardElement, false);
+  player2BoardElement.style.display = 'grid';
 };
 
 export const executeAttack = (attacker, defender, row, column) => {
@@ -378,6 +378,6 @@ const gameOver = (winner) => {
   displayGameMessage(message);
   clearTurnIndicators();
 
-  player2Board.style.pointerEvents = 'none';
+  player2BoardElement.style.pointerEvents = 'none';
 };
 
