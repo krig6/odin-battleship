@@ -61,12 +61,12 @@ export const setupPlayerOnePlacementScreen = () => {
 };
 
 player1Board.addEventListener('place-ship', (e) => {
-  const { shipType, startRow, startCol, orientation } = e.detail;
+  const { shipType, startRow, startColumn, orientation } = e.detail;
 
   try {
     const ship = player1.gameboard.fleet[shipType];
 
-    player1.gameboard.placeShip(startRow, startCol, ship, orientation);
+    player1.gameboard.placeShip(startRow, startColumn, ship, orientation);
     renderPlayerBoard(player1, player1Board);
     enableBoardDropZones(player1Board);
 
@@ -94,16 +94,16 @@ const attemptToRotateShip = (gameboard, shipId) => {
 
   const shipCells = [...gameboard.shipPositions]
     .map(coordinate => coordinate.split(',').map(Number))
-    .filter(([r, c]) => board[r][c]?.id === shipId);
+    .filter(([row, column]) => board[row][column]?.id === shipId);
 
   if (shipCells.length === 0) return false;
 
-  const [r, c] = shipCells[0];
-  const ship = board[r][c];
+  const [row, column] = shipCells[0];
+  const ship = board[row][column];
   const originalOrientation = ship.orientation;
   const shipLength = ship.length;
 
-  const originalBoard = board.map(row => [...row]);
+  const originalBoard = board.map(cells => [...cells]);
   const originalShipPositions = new Set(gameboard.shipPositions);
 
   const isHorizontal = shipCells[0][0] === shipCells[1][0];
@@ -114,10 +114,10 @@ const attemptToRotateShip = (gameboard, shipId) => {
   const newOrientation = isHorizontal ? 'vertical' : 'horizontal';
 
   let startRow = pivotRow;
-  let startCol = pivotCol;
+  let startColumn = pivotCol;
 
   if (newOrientation === 'horizontal') {
-    startCol = pivotCol - pivotIndex;
+    startColumn = pivotCol - pivotIndex;
   } else {
     startRow = pivotRow - pivotIndex;
   }
@@ -127,7 +127,7 @@ const attemptToRotateShip = (gameboard, shipId) => {
     gameboard.shipPositions.delete(`${r},${c}`);
   }
   try {
-    gameboard.placeShip(startRow, startCol, ship, newOrientation);
+    gameboard.placeShip(startRow, startColumn, ship, newOrientation);
     return true;
   } catch (err) {
     gameboard.board = originalBoard;
