@@ -1,5 +1,5 @@
-import { renderPlayerBoard } from './domController.js';
-import { handleTurn } from './gameController.js';
+import { displayGameMessage, renderPlayerBoard } from './domController.js';
+import { handleTurn, executeAttack } from './gameController.js';
 
 let gameState, attacker, defender, defenderBoardElement, onGameOver;
 
@@ -27,47 +27,52 @@ export const getAiAttackDelay = () => {
     : Math.floor(Math.random() * (2500 - 1200 + 1)) + 1200;
 };
 
-export const aiAttacks = () => {
+export const executeAiTurn = () => {
   if (gameState.gameHasEnded) return;
 
   let attempt = 0;
 
   while (aiState.hunting && aiState.targetQueue.length > 0) {
-    const adjacentKey = aiState.targetQueue.shift();
-    const [row, column] = adjacentKey;
-    const canShoot =
+    const adjacentCoordinate = aiState.targetQueue.shift();
+    const [row, column] = adjacentCoordinate;
+
+    const canShoot = (
       !defender.gameboard.successfulHits.has(`${row},${column}`) &&
-      !defender.gameboard.missedShots.has(`${row},${column}`);
+      !defender.gameboard.missedShots.has(`${row},${column}`)
+    );
 
-    if (!canShoot) continue;
-    const result = defender.gameboard.receiveAttack(row, column);
-    renderPlayerBoard(defender, defenderBoardElement);
-
-    if (result === 'hit') {
-      const ship = defender.gameboard.getGrid()[row][column];
-      const nextTargets = getAdjacentCells(row, column);
-      aiState.targetQueue.push(...nextTargets);
-
-      if (ship?.isSunk) resetAiState();
+    if (!canShoot) {
+      continue;
     }
+    const { success, allShipsSunk, errorMessage, result } = executeAttack(attacker, defender, row, column);
 
-    if (defender.gameboard.allShipsSunk) {
-      onGameOver('AI');
+    if (errorMessage) {
+      displayGameMessage(errorMessage);
       return;
     }
 
-    handleTurn();
-    return;
+    if (success) {
+      updateAiTargetingAfterHit(result, row, column);
+      renderPlayerBoard(defender, defenderBoardElement);
+
+      if (allShipsSunk) {
+        onGameOver(attacker.id);
+        return;
+      }
+
+      handleTurn();
+      return;
+    }
   }
 
   const remainingShipSizes = getRemainingShipSizes();
   while (attempt < 100) {
     let row = Math.floor(Math.random() * 10);
     let column = Math.floor(Math.random() * 10);
-    const key = `${row},${column}`;
+    const coordinate = `${row},${column}`;
     const canShoot = (
-      !defender.gameboard.successfulHits.has(key) &&
-      !defender.gameboard.missedShots.has(key)
+      !defender.gameboard.successfulHits.has(coordinate) &&
+      !defender.gameboard.missedShots.has(coordinate)
     );
 
     if (!canShoot || !canFitAnyShip(row, column, remainingShipSizes)) {
@@ -75,26 +80,37 @@ export const aiAttacks = () => {
       continue;
     }
 
-    const result = defender.gameboard.receiveAttack(row, column);
-    renderPlayerBoard(defender, defenderBoardElement);
+    const { success, allShipsSunk, errorMessage, result } = executeAttack(attacker, defender, row, column);
 
-    if (result === 'hit') {
-      aiState.hunting = true;
-      const ship = defender.gameboard.getGrid()[row][column];
-      const nextTargets = getAdjacentCells(row, column);
-      aiState.targetQueue.push(...nextTargets);
-
-      if (ship?.isSunk) resetAiState();
-    }
-
-    if (defender.gameboard.allShipsSunk) {
-      onGameOver('AI');
+    if (errorMessage) {
+      displayGameMessage(errorMessage);
       return;
     }
 
-    handleTurn();
-    return;
+    if (success) {
+      updateAiTargetingAfterHit(result, row, column);
+      renderPlayerBoard(defender, defenderBoardElement);
+
+      if (allShipsSunk) {
+        onGameOver(attacker.id);
+        return;
+      }
+
+      handleTurn();
+      return;
+    }
   }
+};
+
+const updateAiTargetingAfterHit = (result, row, column) => {
+  if (result !== 'hit') return;
+
+  aiState.hunting = true;
+  const ship = defender.gameboard.getGrid()[row][column];
+  const nextTargets = getAdjacentCells(row, column);
+  aiState.targetQueue.push(...nextTargets);
+
+  if (ship?.isSunk) resetAiState();
 };
 
 const getAdjacentCells = (row, col) => {
