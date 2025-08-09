@@ -17,7 +17,7 @@ import {
 import {
   resetAiState,
   getAiAttackDelay,
-  aiAttacks,
+  executeAiTurn,
   initializeAi
 } from './aiController.js';
 
@@ -208,7 +208,7 @@ const startGame = () => {
 
   setupComputerGameboard();
   setupAttackListeners();
-  initializeAi(gameState, player1, player1Board, gameOver);
+  initializeAi(gameState, player2, player1, player1Board, gameOver);
   handleTurn();
   mainContainer.appendChild(createNewGameButton(newGame));
 };
@@ -285,7 +285,7 @@ export const handleTurn = () => {
     }
 
     const aiAttackDelay = getAiAttackDelay();
-    gameState.aiTimeoutId = setTimeout(aiAttacks, aiAttackDelay);
+    gameState.aiTimeoutId = setTimeout(executeAiTurn, aiAttackDelay);
   } else {
     setActiveBoard(currentPlayer);
 
