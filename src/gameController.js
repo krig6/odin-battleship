@@ -16,9 +16,10 @@ import {
 
 import {
   resetAiState,
-  getAiAttackDelay,
   executeAiTurn,
-  initializeAi
+  initializeAi,
+  cancelAiTimer,
+  scheduleAiTurn
 } from './aiController.js';
 
 const player1 = new Player('player1');
@@ -34,7 +35,6 @@ const FLEET_CONFIG = [
 
 const gameState = {
   currentTurn: null,
-  aiTimeoutId: null,
   isFirstTurn: true,
   gameHasEnded: false,
   player1ClickHandler: null,
@@ -234,12 +234,10 @@ const setRandomStartingPlayer = () => {
 
 
 const resetGameState = () => {
-  if (gameState.aiTimeoutId !== null) {
-    clearTimeout(gameState.aiTimeoutId);
-  }
+
+  cancelAiTimer();
 
   gameState.currentTurn = null;
-  gameState.aiTimeoutId = null;
   gameState.isFirstTurn = true;
   gameState.gameHasEnded = false;
   gameState.player1ClickHandler = null;
@@ -284,8 +282,7 @@ export const handleTurn = () => {
       displayGameMessage('Opponent\'s turn.');
     }
 
-    const aiAttackDelay = getAiAttackDelay();
-    gameState.aiTimeoutId = setTimeout(executeAiTurn, aiAttackDelay);
+    scheduleAiTurn(executeAiTurn);
   } else {
     setActiveBoard(currentPlayer);
 
@@ -365,10 +362,7 @@ const gameOver = (winner) => {
   if (gameState.gameHasEnded) return;
   gameState.gameHasEnded = true;
 
-  if (gameState.aiTimeoutId !== null) {
-    clearTimeout(gameState.aiTimeoutId);
-    gameState.aiTimeoutId = null;
-  }
+  cancelAiTimer();
 
   const message =
     winner === 'player1'

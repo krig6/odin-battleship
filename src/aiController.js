@@ -11,14 +11,28 @@ export const initializeAi = (_gameState, _attacker, _defender, _defenderBoardEle
   onGameOver = _onGameOver;
 };
 
-const aiState = {
+export const aiState = {
   hunting: false,
-  targetQueue: []
+  targetQueue: [],
+  aiTimeoutId: null
 };
 
 export const resetAiState = () => {
   aiState.hunting = false;
   aiState.targetQueue = [];
+};
+
+export const cancelAiTimer = () => {
+  if (aiState.aiTimeoutId !== null) {
+    clearTimeout(aiState.aiTimeoutId);
+    aiState.aiTimeoutId = null;
+  }
+};
+
+export const scheduleAiTurn = (callback) => {
+  cancelAiTimer();
+  const aiAttackDelay = getAiAttackDelay();
+  aiState.aiTimeoutId = setTimeout(callback, aiAttackDelay);
 };
 
 export const getAiAttackDelay = () => {
