@@ -204,3 +204,13 @@ export const setActiveBoard = (currentPlayer) => {
     player2BoardElement.classList.remove('player-board--turn');
   }
 };
+
+export const removeDockContainer = () => {
+  const dockContainerElement = document.querySelector('.dock-container');
+  if (dockContainerElement) dockContainerElement.remove();
+};
+
+export const clearDraggableShipsFromDock = () => {
+  const draggableShips = document.querySelectorAll('.ship--draggable');
+  draggableShips.forEach(draggableShip => draggableShip.remove());
+};

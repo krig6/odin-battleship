@@ -11,7 +11,9 @@ import {
   createNewGameButton,
   displayGameMessage,
   setActiveBoard,
-  clearTurnIndicators
+  clearTurnIndicators,
+  removeDockContainer,
+  clearDraggableShipsFromDock
 } from './domController.js';
 
 import {
@@ -173,15 +175,10 @@ const randomizeComputerPlacement = () => {
   autoPlaceFleet(player2, player2BoardElement);
 };
 
-const clearDraggableShipsFromDock = () => {
-  document.querySelectorAll('.ship').forEach(ship => ship.remove());
-};
-
 const resetBoard = () => {
   player1.gameboard.reset();
 
-  const dock = document.querySelector('.dock-container');
-  if (dock) dock.remove();
+  removeDockContainer();
 
   const fleet = createFleet(player1);
   renderPlayerBoard(player1, player1BoardElement);
@@ -195,8 +192,7 @@ const startGame = () => {
     return;
   }
 
-  const dock = document.querySelector('.dock-container');
-  if (dock) dock.remove();
+  removeDockContainer();
 
   setRandomStartingPlayer();
 
