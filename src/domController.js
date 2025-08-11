@@ -1,7 +1,6 @@
-export const player1BoardElement = document.getElementById('player-one-board');
-export const player2BoardElement = document.getElementById('player-two-board');
-export const mainContainerElement = document.getElementById('main-container');
-
+export const player1BoardElement = document.querySelector('[data-player="1"]');
+export const player2BoardElement = document.querySelector('[data-player="2"]');
+export const mainContainerElement = document.querySelector('.main-container');
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;
@@ -11,7 +10,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   for (let row = 0; row < boardGrid.length; row++) {
     for (let column = 0; column < boardGrid[row].length; column++) {
       const cellElement = document.createElement('div');
-      cellElement.classList.add('cell');
+      cellElement.classList.add('player-board__cell');
       cellElement.dataset.row = row;
       cellElement.dataset.column = column;
 
@@ -31,15 +30,15 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
       const positionKey = `${row},${column}`;
 
       if (successfulHits.has(positionKey)) {
-        cellElement.classList.add('hit');
+        cellElement.classList.add('player-board__cell--hit');
       }
 
       if (missedShots.has(positionKey)) {
-        cellElement.classList.add('miss');
+        cellElement.classList.add('player-board__cell--miss');
       }
 
       if (cellValue && revealShips) {
-        cellElement.classList.add('ship');
+        cellElement.classList.add('player-board__cell--ship');
         cellElement.dataset.shipId = cellValue.id;
       }
 
@@ -49,7 +48,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
 };
 
 export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
-  const gameContainerElement = document.getElementById('game-container');
+  const gameContainerElement = document.querySelector('.main-container__game');
 
   const dockContainerElement = document.createElement('div');
   dockContainerElement.classList.add('dock-container');
@@ -60,7 +59,7 @@ export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
   const startBtnElement = createStartGameButton(onStart);
 
   const dockControls = document.createElement('div');
-  dockControls.classList.add('dock-controls');
+  dockControls.classList.add('dock-container__actions');
   dockControls.append(randomizeBtnElement, resetBtnElement, startBtnElement);
 
   dockContainerElement.append(draggableShips, dockControls);
@@ -69,13 +68,13 @@ export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
 
 const createDraggableShips = (fleetConfig) => {
   const dockShipyardElement = document.createElement('div');
-  dockShipyardElement.classList.add('dock-shipyard');
+  dockShipyardElement.classList.add('dock-container__shipyard');
 
   const ships = Object.values(fleetConfig);
 
   for (const { length, type } of ships) {
     const shipElement = document.createElement('div');
-    shipElement.classList.add('ship');
+    shipElement.classList.add('ship', 'ship--draggable');
     shipElement.setAttribute('draggable', true);
     shipElement.dataset.type = type;
     shipElement.dataset.length = length;
@@ -84,14 +83,14 @@ const createDraggableShips = (fleetConfig) => {
     let dragOffset = 0;
 
     shipElement.addEventListener('mousedown', (e) => {
-      const part = e.target.closest('.segment');
+      const part = e.target.closest('.ship__segment');
       dragOffset = part ? [...part.parentNode.children].indexOf(part) : 0;
       shipElement.dataset.offset = dragOffset;
     });
 
     shipElement.addEventListener('click', () => {
       orientation = orientation === 'horizontal' ? 'vertical' : 'horizontal';
-      shipElement.classList.toggle('vertical');
+      shipElement.classList.toggle('ship--vertical');
       shipElement.dataset.orientation = orientation;
     });
 
@@ -101,16 +100,16 @@ const createDraggableShips = (fleetConfig) => {
       e.dataTransfer.setData('text/orientation', orientation);
       e.dataTransfer.setData('text/drag-offset', dragOffset);
       e.dataTransfer.effectAllowed = 'move';
-      shipElement.classList.add('dragging');
+      shipElement.classList.add('ship--dragging');
     });
 
     shipElement.addEventListener('dragend', () => {
-      shipElement.classList.remove('dragging');
+      shipElement.classList.remove('ship--dragging');
     });
 
     for (let shipElementIndex = 0; shipElementIndex < length; shipElementIndex++) {
       const segmentElement = document.createElement('div');
-      segmentElement.classList.add('segment', type);
+      segmentElement.classList.add('ship__segment');
       shipElement.appendChild(segmentElement);
     }
 
@@ -120,47 +119,47 @@ const createDraggableShips = (fleetConfig) => {
   return dockShipyardElement;
 };
 
-const createButton = (label, className, onClickHandler) => {
+const createButton = (label, blockName, modifier, onClickHandler) => {
   const button = document.createElement('button');
   button.textContent = label;
-  button.classList.add(className);
+  button.classList.add(`${blockName}__button`, `${blockName}__button--${modifier}`);
   button.addEventListener('click', onClickHandler);
   return button;
 };
 
 export const createRandomizeButton = (onClickHandler) =>
-  createButton('Randomize', 'random-btn', onClickHandler);
+  createButton('Randomize', 'dock-container', 'randomize', onClickHandler);
 
 export const createResetButton = (onClickHandler) =>
-  createButton('Reset', 'reset-btn', onClickHandler);
+  createButton('Reset', 'dock-container', 'reset', onClickHandler);
 
 export const createStartGameButton = (onClickHandler) =>
-  createButton('Start', 'start-game-btn', onClickHandler);
+  createButton('Start', 'dock-container', 'start-game', onClickHandler);
 
 export const createNewGameButton = (onClickHandler) =>
-  createButton('New Game', 'new-game-btn', onClickHandler);
+  createButton('New Game', 'main-container', 'new-game', onClickHandler);
 
-export const enableBoardDropZones = (container) => {
-  const cells = container.querySelectorAll('.cell');
+export const enableBoardDropZones = (boardElement) => {
+  const cellElements = boardElement.querySelectorAll('.player-board__cell');
 
-  cells.forEach((cell) => {
-    cell.addEventListener('dragover', (e) => {
+  cellElements.forEach((cellElement) => {
+    cellElement.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
     });
 
-    cell.addEventListener('drop', (e) => {
+    cellElement.addEventListener('drop', (e) => {
       e.preventDefault();
 
       const shipType = e.dataTransfer.getData('text/ship-type');
       const orientation = e.dataTransfer.getData('text/orientation') || 'horizontal';
       const dragOffset = parseInt(e.dataTransfer.getData('text/drag-offset')) || 0;
 
-      let startRow = parseInt(cell.dataset.row);
-      let startCol = parseInt(cell.dataset.column);
+      let startRow = parseInt(cellElement.dataset.row);
+      let startColumn = parseInt(cellElement.dataset.column);
 
       if (orientation === 'horizontal') {
-        startCol -= dragOffset;
+        startColumn -= dragOffset;
       } else {
         startRow -= dragOffset;
       }
@@ -168,7 +167,7 @@ export const enableBoardDropZones = (container) => {
       const eventData = {
         shipType,
         startRow,
-        startCol,
+        startColumn,
         orientation
       };
 
@@ -177,13 +176,13 @@ export const enableBoardDropZones = (container) => {
         bubbles: true
       });
 
-      cell.dispatchEvent(placeEvent);
+      cellElement.dispatchEvent(placeEvent);
     });
   });
 };
 
 export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
-  const messageContainerElement = document.getElementById('message-container');
+  const messageContainerElement = document.querySelector('.main-container__message');
   const message = document.createElement('p');
   messageContainerElement.innerHTML = '';
   message.textContent = gameMessage;
@@ -192,16 +191,16 @@ export const displayGameMessage = (gameMessage = 'Drag and place your ships.') =
 };
 
 export const clearTurnIndicators = () => {
-  player1BoardElement.classList.remove('turn');
-  player2BoardElement.classList.remove('turn');
+  player1BoardElement.classList.remove('player-board--turn');
+  player2BoardElement.classList.remove('player-board--turn');
 };
 
 export const setActiveBoard = (currentPlayer) => {
   if (currentPlayer.isComputer) {
-    player2BoardElement.classList.add('turn');
-    player1BoardElement.classList.remove('turn');
+    player2BoardElement.classList.add('player-board--turn');
+    player1BoardElement.classList.remove('player-board--turn');
   } else {
-    player1BoardElement.classList.add('turn');
-    player2BoardElement.classList.remove('turn');
+    player1BoardElement.classList.add('player-board--turn');
+    player2BoardElement.classList.remove('player-board--turn');
   }
 };

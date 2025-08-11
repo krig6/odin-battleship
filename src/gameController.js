@@ -70,9 +70,9 @@ player1BoardElement.addEventListener('place-ship', (e) => {
     renderPlayerBoard(player1, player1BoardElement);
     enableBoardDropZones(player1BoardElement);
 
-    const shipElement = document.querySelector(`.ship[data-type="${shipType}"]`);
-    if (shipElement) {
-      shipElement.remove();
+    const draggableShipElement = document.querySelector(`.ship--draggable[data-type="${shipType}"]`);
+    if (draggableShipElement) {
+      draggableShipElement.remove();
     }
   } catch (err) {
     displayGameMessage(err.message);
@@ -149,11 +149,11 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
 
     while (!placed && attempts < 100) {
       const row = Math.floor(Math.random() * 10);
-      const col = Math.floor(Math.random() * 10);
+      const column = Math.floor(Math.random() * 10);
       const isHorizontal = Math.random() < 0.5 ? 'horizontal' : 'vertical';
 
       try {
-        player.gameboard.placeShip(row, col, ship, isHorizontal);
+        player.gameboard.placeShip(row, column, ship, isHorizontal);
         placed = true;
       } catch {
         attempts++;
@@ -260,7 +260,7 @@ const newGame = () => {
   player1.gameboard.reset();
   player2.gameboard.reset();
 
-  const newGameButtonElement = document.querySelector('.new-game-btn');
+  const newGameButtonElement = document.querySelector('.main-container__button--new-game');
   if (newGameButtonElement) {
     newGameButtonElement.remove();
   }
@@ -297,7 +297,7 @@ export const handleTurn = () => {
 };
 
 const isPlayerFleetPlaced = () => {
-  const shipyard = document.querySelector('.dock-shipyard');
+  const shipyard = document.querySelector('.dock-container__shipyard');
   return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
 };
 
@@ -336,7 +336,7 @@ export const executeAttack = (attacker, defender, row, column) => {
 const createPlayerAttackHandler = (attacker, defender, defenderBoardElement) => {
   return (e) => {
     const cell = e.target;
-    if (!cell.classList.contains('cell')) return;
+    if (!cell.classList.contains('player-board__cell')) return;
 
     const row = parseInt(cell.dataset.row);
     const column = parseInt(cell.dataset.column);
