@@ -14,11 +14,7 @@ class Gameboard {
 
   placeShip(x, y, ship, orientation = 'horizontal') {
     if ((x < 0 || x >= this.boardSize) || (y < 0 || y >= this.boardSize)) {
-      throw new Error('Invalid starting coordinates: position is outside the board.');
-    }
-
-    if (!['horizontal', 'vertical'].includes(orientation)) {
-      throw new Error('Invalid orientation specified. Must be horizontal or vertical.');
+      throw new Error('Invalid starting coordinates: Position is outside the board.');
     }
 
     if ((orientation === 'horizontal' && y + ship.length > this.boardSize) ||
@@ -62,7 +58,7 @@ class Gameboard {
       const [row, column] = coordinate.split(',').map(Number);
       const occupyingShip = this.board[row][column];
       if (occupyingShip && occupyingShip.id !== ship.id) {
-        throw new Error('Invalid placement: overlapping or adjacent to another ship.');
+        throw new Error('Invalid placement: Overlapping or adjacent to another ship.');
       }
     }
 
