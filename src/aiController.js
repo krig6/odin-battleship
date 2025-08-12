@@ -14,7 +14,11 @@ export const initializeAi = (_gameState, _attacker, _defender, _defenderBoardEle
 export const aiState = {
   hunting: false,
   targetQueue: [],
-  aiTimeoutId: null
+  aiTimeoutId: null,
+  attackDelayRange: {
+    hunting: [500, 900],
+    searching: [1200, 2500]
+  }
 };
 
 export const resetAiState = () => {
@@ -37,9 +41,10 @@ export const scheduleAiTurn = (callback) => {
 };
 
 export const getAiAttackDelay = () => {
-  return aiState.hunting
-    ? Math.floor(Math.random() * (900 - 500 + 1)) + 500
-    : Math.floor(Math.random() * (2500 - 1200 + 1)) + 1200;
+  const [min, max] = aiState.hunting
+    ? aiState.attackDelayRange.hunting
+    : aiState.attackDelayRange.searching;
+  return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
 export const executeAiTurn = () => {
