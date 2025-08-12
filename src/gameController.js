@@ -132,7 +132,7 @@ const attemptToRotateShip = (gameboard, shipId) => {
     gameboard.board = originalBoard;
     gameboard.shipPositions = originalShipPositions;
     ship.orientation = originalOrientation;
-    displayGameMessage(err);
+    displayGameMessage(err.message);
     return false;
   }
 };
