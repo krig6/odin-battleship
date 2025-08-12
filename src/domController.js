@@ -1,6 +1,12 @@
 export const player1BoardElement = document.querySelector('[data-player="1"]');
 export const player2BoardElement = document.querySelector('[data-player="2"]');
 export const mainContainerElement = document.querySelector('.main-container');
+
+export const uiState = {
+  player1ClickHandler: null,
+  player2ClickHandler: null
+};
+
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   const successfulHits = player.gameboard.successfulHits;
   const missedShots = player.gameboard.missedShots;

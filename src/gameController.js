@@ -14,7 +14,8 @@ import {
   clearTurnIndicators,
   removeDockContainer,
   removeDraggableShips,
-  isDockEmpty
+  isDockEmpty,
+  uiState
 } from './domController.js';
 
 import {
@@ -40,9 +41,7 @@ const gameState = {
   currentTurn: null,
   isFirstTurn: true,
   isGameOver: false,
-  winner: null,
-  player1ClickHandler: null,
-  player2ClickHandler: null
+  winner: null
 };
 
 const createFleet = (player, fleetData = FLEET_CONFIG) => {
@@ -208,18 +207,18 @@ const startGame = () => {
 };
 
 const setupAttackListeners = () => {
-  if (gameState.player1ClickHandler) {
-    player2BoardElement.removeEventListener('click', gameState.player1ClickHandler);
+  if (uiState.player1ClickHandler) {
+    player2BoardElement.removeEventListener('click', uiState.player1ClickHandler);
   }
-  if (gameState.player2ClickHandler) {
-    player1BoardElement.removeEventListener('click', gameState.player2ClickHandler);
+  if (uiState.player2ClickHandler) {
+    player1BoardElement.removeEventListener('click', uiState.player2ClickHandler);
   }
 
-  gameState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2BoardElement);
-  gameState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1BoardElement);
+  uiState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2BoardElement);
+  uiState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1BoardElement);
 
-  player1BoardElement.addEventListener('click', gameState.player2ClickHandler);
-  player2BoardElement.addEventListener('click', gameState.player1ClickHandler);
+  player1BoardElement.addEventListener('click', uiState.player2ClickHandler);
+  player2BoardElement.addEventListener('click', uiState.player1ClickHandler);
 };
 
 const setRandomStartingPlayer = () => {
