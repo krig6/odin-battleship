@@ -124,9 +124,9 @@ const attemptToRotateShip = (gameboard, shipId) => {
     startRow = pivotRow - pivotIndex;
   }
 
-  for (const [r, c] of sorted) {
-    board[r][c] = null;
-    gameboard.shipPositions.delete(`${r},${c}`);
+  for (const [row, column] of sorted) {
+    board[row][column] = null;
+    gameboard.shipPositions.delete(`${row},${column}`);
   }
   try {
     gameboard.placeShip(startRow, startColumn, ship, newOrientation);
