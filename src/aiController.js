@@ -18,6 +18,7 @@ export const aiState = {
 };
 
 export const resetAiState = () => {
+  cancelAiTimer();
   aiState.hunting = false;
   aiState.targetQueue = [];
 };

@@ -227,9 +227,6 @@ const setRandomStartingPlayer = () => {
 
 
 const resetGameState = () => {
-
-  cancelAiTimer();
-
   gameState.currentTurn = null;
   gameState.isFirstTurn = true;
   gameState.gameHasEnded = false;
