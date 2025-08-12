@@ -13,7 +13,8 @@ import {
   setActiveBoard,
   clearTurnIndicators,
   removeDockContainer,
-  removeDraggableShips
+  removeDraggableShips,
+  isDockEmpty
 } from './domController.js';
 
 import {
@@ -184,7 +185,7 @@ const resetBoard = () => {
 };
 
 const startGame = () => {
-  if (!isPlayerFleetPlaced()) {
+  if (!isDockEmpty()) {
     return;
   }
 
@@ -283,11 +284,6 @@ export const handleTurn = () => {
     }
   }
   gameState.isFirstTurn = false;
-};
-
-const isPlayerFleetPlaced = () => {
-  const shipyard = document.querySelector('.dock-container__shipyard');
-  return shipyard ? shipyard.querySelectorAll('.ship').length === 0 : false;
 };
 
 const setupComputerGameboard = () => {

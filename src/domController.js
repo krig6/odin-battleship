@@ -219,3 +219,8 @@ export const removeDraggableShips = (shipType) => {
     draggableShips.forEach(draggableShip => draggableShip.remove());
   }
 };
+
+export const isDockEmpty = () => {
+  const dockShipyardElement = document.querySelector('.dock-container__shipyard');
+  return dockShipyardElement ? dockShipyardElement.querySelectorAll('.ship--draggable').length === 0 : false;
+};
