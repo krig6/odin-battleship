@@ -39,7 +39,8 @@ const FLEET_CONFIG = [
 const gameState = {
   currentTurn: null,
   isFirstTurn: true,
-  gameHasEnded: false,
+  isGameOver: false,
+  winner: null,
   player1ClickHandler: null,
   player2ClickHandler: null
 };
@@ -229,7 +230,7 @@ const setRandomStartingPlayer = () => {
 const resetGameState = () => {
   gameState.currentTurn = null;
   gameState.isFirstTurn = true;
-  gameState.gameHasEnded = false;
+  gameState.isGameOver = false;
   gameState.player1ClickHandler = null;
   gameState.player2ClickHandler = null;
 };
@@ -290,7 +291,7 @@ const setupComputerGameboard = () => {
 };
 
 export const executeAttack = (attacker, defender, row, column) => {
-  if (gameState.gameHasEnded || attacker.id !== gameState.currentTurn) {
+  if (gameState.isGameOver || attacker.id !== gameState.currentTurn) {
     return {
       success: false,
       allShipsSunk: false,
@@ -334,7 +335,8 @@ const createPlayerAttackHandler = (attacker, defender, defenderBoardElement) => 
       renderPlayerBoard(defender, defenderBoardElement, false);
 
       if (allShipsSunk) {
-        gameOver(attacker.id);
+        gameState.winner = attacker.id;
+        gameOver();
         return;
       }
 
@@ -343,16 +345,15 @@ const createPlayerAttackHandler = (attacker, defender, defenderBoardElement) => 
   };
 };
 
-const gameOver = (winner) => {
-  if (gameState.gameHasEnded) return;
-  gameState.gameHasEnded = true;
+const gameOver = () => {
+  if (gameState.isGameOver) return;
+  gameState.isGameOver = true;
 
   cancelAiTimer();
 
-  const message =
-    winner === 'player1'
-      ? 'You\'ve sunk the enemy fleet. Victory is yours!'
-      : 'All your ships have been destroyed. Defeat!';
+  const message = gameState.winner === 'player1'
+    ? 'You\'ve sunk the enemy fleet. Victory is yours!'
+    : 'All your ships have been destroyed. Defeat!';
 
   displayGameMessage(message);
   clearTurnIndicators();

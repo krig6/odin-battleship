@@ -71,7 +71,8 @@ export const executeAiTurn = () => {
       renderPlayerBoard(defender, defenderBoardElement);
 
       if (allShipsSunk) {
-        onGameOver(attacker.id);
+        gameState.winner = attacker.id;
+        onGameOver();
         return;
       }
 
@@ -107,7 +108,8 @@ export const executeAiTurn = () => {
       renderPlayerBoard(defender, defenderBoardElement);
 
       if (allShipsSunk) {
-        onGameOver(attacker.id);
+        gameState.winner = attacker.id;
+        onGameOver();
         return;
       }
 
