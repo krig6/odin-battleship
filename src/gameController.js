@@ -44,6 +44,16 @@ const gameState = {
   winner: null
 };
 
+export const MESSAGES = {
+  PLAYER1_TURN_FIRST: 'You go first! Launch your attack!',
+  PLAYER2_TURN_FIRST: 'Enemy has the initiative. Stay sharp.',
+  OPPONENT_TURN: 'Opponent\'s turn.',
+  YOUR_TURN: 'Your turn.',
+  VICTORY: 'You’ve sunk the enemy fleet. Victory is yours!',
+  DEFEAT: 'All your ships have been destroyed. Defeat!',
+  DOCK_NOT_EMPTY: 'Please place all your ships before starting the game.'
+};
+
 const createFleet = (player, fleetData = FLEET_CONFIG) => {
   const fleet = {};
   fleetData.forEach(({ type, length }) => {
@@ -189,6 +199,7 @@ const resetBoard = () => {
 
 const startGame = () => {
   if (!isDockEmpty()) {
+    displayGameMessage(MESSAGES.DOCK_NOT_EMPTY);
     return;
   }
 
@@ -198,8 +209,8 @@ const startGame = () => {
 
   displayGameMessage(
     gameState.currentTurn === player1.id
-      ? 'You’ve gained the initiative. Launch your first attack!'
-      : 'Enemy has the initiative. Stay sharp.'
+      ? MESSAGES.PLAYER1_TURN_FIRST
+      : MESSAGES.PLAYER2_TURN_FIRST
   );
 
   setupComputerGameboard();
@@ -272,7 +283,7 @@ export const handleTurn = () => {
     setActiveBoard(currentPlayer);
 
     if (!gameState.isFirstTurn) {
-      displayGameMessage('Opponent\'s turn.');
+      displayGameMessage(MESSAGES.OPPONENT_TURN);
     }
 
     scheduleAiTurn(executeAiTurn);
@@ -280,7 +291,7 @@ export const handleTurn = () => {
     setActiveBoard(currentPlayer);
 
     if (!gameState.isFirstTurn) {
-      displayGameMessage('Your turn.');
+      displayGameMessage(MESSAGES.YOUR_TURN);
     }
   }
   gameState.isFirstTurn = false;
@@ -353,12 +364,12 @@ const gameOver = () => {
 
   cancelAiTimer();
 
-  const message = gameState.winner === 'player1'
-    ? 'You\'ve sunk the enemy fleet. Victory is yours!'
-    : 'All your ships have been destroyed. Defeat!';
-
-  displayGameMessage(message);
   clearTurnIndicators();
+
+  displayGameMessage(gameState.winner === 'player1'
+    ? MESSAGES.VICTORY
+    : MESSAGES.DEFEAT
+  );
 
   player2BoardElement.style.pointerEvents = 'none';
 };
