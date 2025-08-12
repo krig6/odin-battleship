@@ -13,7 +13,7 @@ import {
   setActiveBoard,
   clearTurnIndicators,
   removeDockContainer,
-  clearDraggableShipsFromDock
+  removeDraggableShips
 } from './domController.js';
 
 import {
@@ -69,13 +69,9 @@ player1BoardElement.addEventListener('place-ship', (e) => {
     const ship = player1.gameboard.fleet[shipType];
 
     player1.gameboard.placeShip(startRow, startColumn, ship, orientation);
+    removeDraggableShips(shipType);
     renderPlayerBoard(player1, player1BoardElement);
     enableBoardDropZones(player1BoardElement);
-
-    const draggableShipElement = document.querySelector(`.ship--draggable[data-type="${shipType}"]`);
-    if (draggableShipElement) {
-      draggableShipElement.remove();
-    }
   } catch (err) {
     displayGameMessage(err.message);
   }
@@ -168,7 +164,7 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
 };
 
 const randomizePlayerPlacement = () => {
-  autoPlaceFleet(player1, player1BoardElement, clearDraggableShipsFromDock);
+  autoPlaceFleet(player1, player1BoardElement, removeDraggableShips);
 };
 
 const randomizeComputerPlacement = () => {

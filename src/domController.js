@@ -210,7 +210,12 @@ export const removeDockContainer = () => {
   if (dockContainerElement) dockContainerElement.remove();
 };
 
-export const clearDraggableShipsFromDock = () => {
-  const draggableShips = document.querySelectorAll('.ship--draggable');
-  draggableShips.forEach(draggableShip => draggableShip.remove());
+export const removeDraggableShips = (shipType) => {
+  if (shipType) {
+    const draggableShipElement = document.querySelector(`.ship--draggable[data-type="${shipType}"]`);
+    if (draggableShipElement) draggableShipElement.remove();
+  } else {
+    const draggableShips = document.querySelectorAll('.ship--draggable');
+    draggableShips.forEach(draggableShip => draggableShip.remove());
+  }
 };
