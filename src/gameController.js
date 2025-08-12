@@ -60,33 +60,36 @@ export const setupPlayerOnePlacementScreen = () => {
   renderPlayerBoard(player1, player1BoardElement);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
   enableBoardDropZones(player1BoardElement);
+  setupBoardEventListeners(player1, player1BoardElement);
   displayGameMessage();
 };
 
-player1BoardElement.addEventListener('place-ship', (e) => {
-  const { shipType, startRow, startColumn, orientation } = e.detail;
+const setupBoardEventListeners = (player, playerBoardElement) => {
+  playerBoardElement.addEventListener('place-ship', (e) => {
+    const { shipType, startRow, startColumn, orientation } = e.detail;
 
-  try {
-    const ship = player1.gameboard.fleet[shipType];
+    try {
+      const ship = player.gameboard.fleet[shipType];
 
-    player1.gameboard.placeShip(startRow, startColumn, ship, orientation);
-    removeDraggableShips(shipType);
-    renderPlayerBoard(player1, player1BoardElement);
-    enableBoardDropZones(player1BoardElement);
-  } catch (err) {
-    displayGameMessage(err.message);
-  }
-});
+      player.gameboard.placeShip(startRow, startColumn, ship, orientation);
+      removeDraggableShips(shipType);
+      renderPlayerBoard(player, playerBoardElement);
+      enableBoardDropZones(playerBoardElement);
+    } catch (err) {
+      displayGameMessage(err.message);
+    }
+  });
 
-player1BoardElement.addEventListener('rotate-ship', (e) => {
-  const shipId = e.detail.shipId;
+  playerBoardElement.addEventListener('rotate-ship', (e) => {
+    const shipId = e.detail.shipId;
 
-  const wasRotated = attemptToRotateShip(player1.gameboard, shipId);
-  if (!wasRotated) return;
+    const wasRotated = attemptToRotateShip(player.gameboard, shipId);
+    if (!wasRotated) return;
 
-  renderPlayerBoard(player1, player1BoardElement);
-  enableBoardDropZones(player1BoardElement);
-});
+    renderPlayerBoard(player, playerBoardElement);
+    enableBoardDropZones(playerBoardElement);
+  });
+};
 
 const attemptToRotateShip = (gameboard, shipId) => {
   const board = gameboard.board;
