@@ -59,20 +59,20 @@ export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
   const dockContainerElement = document.createElement('div');
   dockContainerElement.classList.add('dock-container');
 
-  const draggableShips = createDraggableShips(fleet);
+  const dockShipyard = createDockShipyard(fleet);
   const randomizeBtnElement = createRandomizeButton(onRandomize);
   const resetBtnElement = createResetButton(onReset);
   const startBtnElement = createStartGameButton(onStart);
 
-  const dockControls = document.createElement('div');
-  dockControls.classList.add('dock-container__actions');
-  dockControls.append(randomizeBtnElement, resetBtnElement, startBtnElement);
+  const dockActions = document.createElement('div');
+  dockActions.classList.add('dock-container__actions');
+  dockActions.append(randomizeBtnElement, resetBtnElement, startBtnElement);
 
-  dockContainerElement.append(draggableShips, dockControls);
+  dockContainerElement.append(dockShipyard, dockActions);
   gameContainerElement.append(dockContainerElement);
 };
 
-const createDraggableShips = (fleetConfig) => {
+const createDockShipyard = (fleetConfig) => {
   const dockShipyardElement = document.createElement('div');
   dockShipyardElement.classList.add('dock-container__shipyard');
 
