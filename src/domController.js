@@ -125,25 +125,25 @@ const createDockShipyard = (fleetConfig) => {
   return dockShipyardElement;
 };
 
-const createButton = (label, blockName, modifier, onClickHandler) => {
+const createButton = (label, modifier, onClickHandler) => {
   const button = document.createElement('button');
   button.textContent = label;
-  button.classList.add(`${blockName}__button`, `${blockName}__button--${modifier}`);
+  button.classList.add('battleship__button', `battleship__button--${modifier}`);
   button.addEventListener('click', onClickHandler);
   return button;
 };
 
 export const createRandomizeButton = (onClickHandler) =>
-  createButton('Randomize', 'dock-container', 'randomize', onClickHandler);
+  createButton('Randomize', 'randomize', onClickHandler);
 
 export const createResetButton = (onClickHandler) =>
-  createButton('Reset', 'dock-container', 'reset', onClickHandler);
+  createButton('Reset', 'reset', onClickHandler);
 
 export const createStartGameButton = (onClickHandler) =>
-  createButton('Start', 'dock-container', 'start-game', onClickHandler);
+  createButton('Start', 'start-game', onClickHandler);
 
 export const createNewGameButton = (onClickHandler) =>
-  createButton('New Game', 'main-container', 'new-game', onClickHandler);
+  createButton('New Game', 'new-game', onClickHandler);
 
 export const enableBoardDropZones = (boardElement) => {
   const cellElements = boardElement.querySelectorAll('.player-board__cell');
