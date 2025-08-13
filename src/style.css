@@ -1,0 +1,262 @@
+/* =========================================
+   GLOBAL RESET
+   ========================================= */
+*,
+*::before,
+*::after {
+  border: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================
+   GLOBAL COLOR VARIABLES
+   ========================================= */
+:root {
+  --battleship-body-bg-color: #0D1B1E;
+  --battleship-accent-color: #88B8E6;
+  --battleship-ship-color: #71ACD1;
+  --battleship-cell-color: #75A9E1;
+  --battleship-hit-color: #E53935;
+  --battleship-miss-color: #CBB2F0;
+}
+
+/* =========================================
+   BASE PAGE & BODY STYLING
+   ========================================= */
+html,
+body {
+  font-family: "Orbitron", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 100vh;
+  background-color: var(--battleship-body-bg-color);
+}
+
+/* =========================================
+   MAIN CONTAINER LAYOUT
+   ========================================= */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+}
+
+.main-container__message {
+  color: var(--battleship-accent-color);
+  font-size: 2.5rem;
+  text-align: center;
+  text-shadow:
+    0 0 0px var(--battleship-accent-color),
+    0 0 1px var(--battleship-accent-color),
+    0 0 4px var(--battleship-accent-color);
+}
+
+.main-container__game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5rem;
+}
+
+/* =========================================
+   PLAYER BOARD STYLING
+   ========================================= */
+.player-board {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  gap: 0.5rem;
+  padding: 0.5rem;
+  position: relative;
+  background-color: var(--battleship-body-bg-color);
+  border-radius: 1rem;
+}
+
+.player-board[data-player="2"] {
+  display: none;
+}
+
+.player-board--turn {
+  box-shadow:
+    0 0 8px var(--battleship-accent-color),
+    0 0 16px var(--battleship-accent-color),
+    0 0 32px var(--battleship-accent-color);
+}
+
+/* =========================================
+   PLAYER BOARD CELLS
+   ========================================= */
+.player-board__cell {
+  position: relative;
+  z-index: 0;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border: 2px solid var(--battleship-cell-color);
+  border-radius: 0.3rem;
+}
+
+.player-board[data-player="2"] .player-board__cell:not(.player-board__cell--hit):not(.player-board__cell--miss):hover {
+  background-color: var(--battleship-accent-color);
+  border: none;
+  box-shadow:
+    0 0 4px var(--battleship-accent-color),
+    0 0 8px var(--battleship-accent-color);
+  outline: 1px solid var(--battleship-accent-color);
+  cursor: crosshair;
+  transition: all 0.2s ease-in-out;
+}
+
+/* =========================================
+   SHIP SEGMENTS
+   ========================================= */
+.player-board__cell--ship,
+.ship__segment {
+  width: 40px;
+  height: 40px;
+  background-color: var(--battleship-ship-color);
+  border-radius: 0.3rem;
+  box-shadow:
+    0 0 10px var(--battleship-ship-color),
+    0 0 5px var(--battleship-ship-color);
+}
+
+.ship--draggable {
+  display: flex;
+  gap: 0.5rem;
+  width: fit-content;
+  cursor: grab;
+}
+
+.ship--dragging {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+
+/* =========================================
+   DOCK CONTAINER
+   ========================================= */
+.dock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dock-container__shipyard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  height: 328px;
+  width: 296px;
+  gap: 1rem;
+  background-color: transparent;
+  border-radius: 0.3rem;
+  box-shadow: 0 0 5px var(--battleship-accent-color);
+}
+
+.dock-container__actions {
+  display: flex;
+  align-self: center;
+  gap: 1rem;
+}
+
+.dock-controls__actions {
+  align-self: center;
+}
+
+/* =========================================
+   BUTTON STYLING
+   ========================================= */
+.battleship__button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 0.3rem;
+  border: 1.5px solid var(--battleship-accent-color);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  color: var(--battleship-body-bg-color);
+  background-color: var(--battleship-accent-color);
+  box-shadow:
+    0 0 4px var(--battleship-accent-color),
+    0 0 8px var(--battleship-accent-color);
+}
+
+.battleship__button:hover {
+  background-color: var(--battleship-body-bg-color);
+  color: var(--battleship-accent-color);
+  box-shadow:
+    0 0 6px var(--battleship-accent-color),
+    0 0 12px var(--battleship-accent-color);
+  transform: scale(1.03);
+}
+
+.battleship__button--new-game:hover {
+  transform: translateX(-50%) scale(1.03);
+}
+
+.battleship__button:active {
+  box-shadow: 0 0 3px var(--battleship-accent-color);
+  transform: scale(0.97);
+}
+
+.battleship__button--new-game:active {
+  transform: translateX(-50%) scale(0.97);
+}
+
+.battleship__button--new-game {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* =========================================
+   HIT / MISS STATES
+   ========================================= */
+.player-board__cell--miss {
+  position: relative;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+}
+
+.player-board__cell--miss::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background-color: var(--battleship-miss-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 5px var(--battleship-miss-color),
+    0 0 10px var(--battleship-miss-color),
+    0 0 20px var(--battleship-miss-color);
+}
+
+.player-board__cell--hit {
+  background-color: var(--battleship-hit-color);
+  border: none;
+  border-radius: 0.3rem;
+  box-shadow:
+    0 0 8px var(--battleship-hit-color),
+    0 0 16px var(--battleship-hit-color),
+    0 0 32px var(--battleship-hit-color);
+}
