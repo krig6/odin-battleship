@@ -37,6 +37,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
 
       if (successfulHits.has(positionKey)) {
         cellElement.classList.add('player-board__cell--hit');
+        cellElement.classList.add('smoke');
       }
 
       if (missedShots.has(positionKey)) {
@@ -229,4 +230,11 @@ export const removeDraggableShips = (shipType) => {
 export const isDockEmpty = () => {
   const dockShipyardElement = document.querySelector('.dock-container__shipyard');
   return dockShipyardElement ? dockShipyardElement.querySelectorAll('.ship--draggable').length === 0 : false;
+};
+
+export const removeNewGameButton = () => {
+  const newGameButtonElement = document.querySelector('.battleship__button--new-game');
+  if (newGameButtonElement) {
+    newGameButtonElement.remove();
+  }
 };

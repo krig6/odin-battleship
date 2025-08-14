@@ -15,7 +15,8 @@ import {
   removeDockContainer,
   removeDraggableShips,
   isDockEmpty,
-  uiState
+  uiState,
+  removeNewGameButton
 } from './domController.js';
 
 import {
@@ -244,8 +245,6 @@ const resetGameState = () => {
   gameState.currentTurn = null;
   gameState.isFirstTurn = true;
   gameState.isGameOver = false;
-  gameState.player1ClickHandler = null;
-  gameState.player2ClickHandler = null;
 };
 
 const newGame = () => {
@@ -262,11 +261,7 @@ const newGame = () => {
   player1.gameboard.reset();
   player2.gameboard.reset();
 
-  const newGameButtonElement = document.querySelector('.main-container__button--new-game');
-  if (newGameButtonElement) {
-    newGameButtonElement.remove();
-  }
-
+  removeNewGameButton();
   setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
