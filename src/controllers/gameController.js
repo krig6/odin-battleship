@@ -367,5 +367,5 @@ const gameOver = () => {
   );
 
   player2BoardElement.style.pointerEvents = 'none';
+  renderPlayerBoard(player2, player2BoardElement);
 };
-
