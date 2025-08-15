@@ -1,5 +1,5 @@
-import { displayGameMessage, renderPlayerBoard } from './domController.js';
-import { handleTurn, executeAttack } from './gameController.js';
+import { displayGameMessage, renderPlayerBoard } from '../controllers/domController.js';
+import { handleTurn, executeAttack } from '../controllers/gameController.js';
 
 let gameState, attacker, defender, defenderBoardElement, onGameOver;
 

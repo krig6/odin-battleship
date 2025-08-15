@@ -1,5 +1,5 @@
-import Player from './Player.js';
-import Ship from './Ship.js';
+import Player from '../core/Player.js';
+import Ship from '../core/Ship.js';
 
 import {
   mainContainerElement,

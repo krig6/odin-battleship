@@ -1,4 +1,4 @@
 import './style.css';
-import { setupPlayerOnePlacementScreen } from './gameController.js';
+import { setupPlayerOnePlacementScreen } from './controllers/gameController.js';
 
 setupPlayerOnePlacementScreen(); 
