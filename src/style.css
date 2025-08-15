@@ -260,3 +260,26 @@ body {
     0 0 16px var(--battleship-hit-color),
     0 0 32px var(--battleship-hit-color);
 }
+
+.site-footer {
+  color: var(--battleship-accent-color);
+  font-size: 1rem;
+  position: fixed;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.site-footer__icon {
+  vertical-align: middle;
+  color: var(--battleship-accent-color);
+  transition: transform 0.2s ease-in-out;
+}
+
+.site-footer__icon:hover {
+  transform: scale(1.1);
+}
+
+.site-footer__icon:active {
+  transform: scale(1);
+}
