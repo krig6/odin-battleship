@@ -1,4 +1,4 @@
-import Ship from '../src/Ship';
+import Ship from '../src/core/Ship.js';
 
 describe('Ship', () => {
   describe('constructor', () => {

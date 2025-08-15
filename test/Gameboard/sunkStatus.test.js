@@ -1,5 +1,5 @@
-import Gameboard from '../../src/Gameboard';
-import Ship from '../../src/Ship';
+import Gameboard from '../../src/core/Gameboard.js';
+import Ship from '../src/Ship.js';
 
 describe('Gameboard', () => {
   describe('sunk status', () => {

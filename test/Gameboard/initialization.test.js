@@ -1,4 +1,4 @@
-import Gameboard from '../../src/Gameboard';
+import Gameboard from '../../src/core/Gameboard.js';
 
 describe('Gameboard', () => {
   describe('initialization', () => {

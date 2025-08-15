@@ -1,12 +1,12 @@
-import Player from '../src/Player';
+import Player from '../src/core/Player.js';
 
 it('creates a Player instance', () => {
   const playerOne = new Player();
-  expect(playerOne.name).toBe('Nameless Admiral');
+  expect(playerOne.name).toBe('You');
 });
 
 it('can identify if the player is a computer', () => {
-  const player = new Player('Bot', true);
+  const player = new Player('player2', 'Bot', true);
   expect(player.isComputer).toBe(true);
 });
 
