@@ -34,7 +34,6 @@ body {
 
 body {
   display: flex;
-  align-items: center;
   justify-content: center;
   width: auto;
   height: 100vh;
@@ -45,6 +44,8 @@ body {
    MAIN CONTAINER LAYOUT
    ========================================= */
 .main-container {
+  position: fixed;
+  top: 10%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -220,7 +221,7 @@ body {
 
 .battleship__button--new-game {
   position: absolute;
-  bottom: 2rem;
+  bottom: -15%;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -265,7 +266,7 @@ body {
   color: var(--battleship-accent-color);
   font-size: 1rem;
   position: fixed;
-  bottom: 5%;
+  bottom: 3%;
   left: 50%;
   transform: translateX(-50%);
 }
