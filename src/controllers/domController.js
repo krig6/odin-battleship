@@ -197,19 +197,22 @@ export const displayGameMessage = (gameMessage = 'Drag and place your ships.') =
   messageContainerElement.appendChild(message);
 };
 
-export const clearTurnIndicators = () => {
-  player1BoardElement.classList.remove('player-board--turn');
-  player2BoardElement.classList.remove('player-board--turn');
+const setBoardAttackableState = (boardElement, canBeAttacked) => {
+  boardElement.classList.toggle('player-board--attackable', canBeAttacked);
+  boardElement.classList.toggle('player-board--protected', !canBeAttacked);
 };
 
-export const setActiveBoard = (currentPlayer) => {
-  if (currentPlayer.isComputer) {
-    player2BoardElement.classList.add('player-board--turn');
-    player1BoardElement.classList.remove('player-board--turn');
-  } else {
-    player1BoardElement.classList.add('player-board--turn');
-    player2BoardElement.classList.remove('player-board--turn');
-  }
+export const clearAllBoardStates = () => {
+  player1BoardElement.classList.remove('player-board--attackable', 'player-board--protected');
+  player2BoardElement.classList.remove('player-board--attackable', 'player-board--protected');
+};
+
+export const enableAttackableBoards = (currentPlayer) => {
+  const humanBoardCanBeAttacked = currentPlayer.isComputer;
+  const aiBoardCanBeAttacked = !currentPlayer.isComputer;
+
+  setBoardAttackableState(player1BoardElement, humanBoardCanBeAttacked);
+  setBoardAttackableState(player2BoardElement, aiBoardCanBeAttacked);
 };
 
 export const removeDockContainer = () => {

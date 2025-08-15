@@ -10,13 +10,13 @@ import {
   renderDockContainer,
   createNewGameButton,
   displayGameMessage,
-  setActiveBoard,
-  clearTurnIndicators,
   removeDockContainer,
   removeDraggableShips,
   isDockEmpty,
   uiState,
-  removeNewGameButton
+  removeNewGameButton,
+  clearAllBoardStates,
+  enableAttackableBoards
 } from './domController.js';
 
 import {
@@ -253,10 +253,9 @@ const newGame = () => {
 
   if (player2BoardElement) {
     player2BoardElement.style.display = 'none';
-    player2BoardElement.style.pointerEvents = 'auto';
   }
 
-  clearTurnIndicators();
+  clearAllBoardStates();
 
   player1.gameboard.reset();
   player2.gameboard.reset();
@@ -275,7 +274,7 @@ export const handleTurn = () => {
   const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
 
   if (currentPlayer.isComputer) {
-    setActiveBoard(currentPlayer);
+    enableAttackableBoards(currentPlayer);
 
     if (!gameState.isFirstTurn) {
       displayGameMessage(MESSAGES.OPPONENT_TURN);
@@ -283,7 +282,7 @@ export const handleTurn = () => {
 
     scheduleAiTurn(executeAiTurn);
   } else {
-    setActiveBoard(currentPlayer);
+    enableAttackableBoards(currentPlayer);
 
     if (!gameState.isFirstTurn) {
       displayGameMessage(MESSAGES.YOUR_TURN);
@@ -359,13 +358,12 @@ const gameOver = () => {
 
   cancelAiTimer();
 
-  clearTurnIndicators();
-
   displayGameMessage(gameState.winner === 'player1'
     ? MESSAGES.VICTORY
     : MESSAGES.DEFEAT
   );
 
+  clearAllBoardStates();
   player2BoardElement.style.pointerEvents = 'none';
   renderPlayerBoard(player2, player2BoardElement);
 };

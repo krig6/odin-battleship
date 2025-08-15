@@ -81,17 +81,24 @@ body {
   position: relative;
   background-color: var(--battleship-body-bg-color);
   border-radius: 1rem;
+  transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
 }
 
 .player-board[data-player="2"] {
   display: none;
 }
 
-.player-board--turn {
-  box-shadow:
-    0 0 8px var(--battleship-accent-color),
-    0 0 16px var(--battleship-accent-color),
-    0 0 32px var(--battleship-accent-color);
+.player-board--attackable {
+  transform: scale(1.02);
+  box-shadow: 0 0 24px var(--battleship-accent-color);
+  opacity: 1;
+  filter: none;
+}
+
+.player-board--protected {
+  opacity: 0.5;
+  filter: grayscale(50%);
+  pointer-events: none;
 }
 
 /* =========================================
