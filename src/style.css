@@ -36,23 +36,29 @@ body {
 
 body {
   display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
   justify-content: center;
-  width: auto;
-  height: 100vh;
+  min-height: 100vh;
   background-color: var(--battleship-body-bg-color);
+}
+
+body::after {
+  content: '';
+  height: 50px;
 }
 
 /* =========================================
    MAIN CONTAINER LAYOUT
    ========================================= */
 .main-container {
-  position: fixed;
-  top: 10%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 4rem;
+  gap: 5rem;
+  margin-top: 3rem;
 }
 
 .main-container__message {
@@ -60,9 +66,9 @@ body {
   font-size: 2.5rem;
   text-align: center;
   text-shadow:
+    0 0 8px var(--battleship-accent-color),
     0 0 0px var(--battleship-accent-color),
-    0 0 1px var(--battleship-accent-color),
-    0 0 4px var(--battleship-accent-color);
+    0 0 1px var(--battleship-accent-color);
 }
 
 .main-container__game {
@@ -137,8 +143,8 @@ body {
   background-color: var(--battleship-ship-color);
   border-radius: 0.3rem;
   box-shadow:
-    0 0 10px var(--battleship-ship-color),
-    0 0 5px var(--battleship-ship-color);
+    0 0 16px var(--battleship-ship-color),
+    0 0 8px var(--battleship-ship-color);
 }
 
 .ship--draggable {
@@ -168,7 +174,7 @@ body {
   flex-direction: column;
   justify-content: center;
   padding: 2rem;
-  height: 328px;
+  height: 35vh;
   width: 296px;
   gap: 1rem;
   background-color: transparent;
@@ -224,17 +230,6 @@ body {
   transform: scale(0.97);
 }
 
-.battleship__button--new-game:active {
-  transform: translateX(-50%) scale(0.97);
-}
-
-.battleship__button--new-game {
-  position: absolute;
-  bottom: -15%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 /* =========================================
   HIT / MISS / DROPZONE STATES
    - neon green for dropzone
@@ -246,10 +241,8 @@ body {
   opacity: 0.9;
   outline: 2px solid #39FF14;
   outline-offset: -2px;
-  box-shadow:
-    0 0 5px var(--battleship-ship-valid-dropzone),
-    0 0 10px var(--battleship-ship-valid-dropzone),
-    0 0 20px var(--battleship-ship-valid-dropzone);
+  box-shadow: 0 0 16px var(--battleship-ship-valid-dropzone),
+    0 0 8px var(--battleship-ship-valid-dropzone),
 }
 
 .player-board__cell--invalid-dropzone {
@@ -258,8 +251,8 @@ body {
   outline: 2px solid var(--battleship-ship-invalid-dropzone);
   outline-offset: -2px;
   box-shadow:
-    0 0 5px var(--battleship-ship-invalid-dropzone),
-    0 0 15px var(--battleship-ship-invalid-dropzone);
+    0 0 16px var(--battleship-ship-invalid-dropzone),
+    0 0 8px var(--battleship-ship-invalid-dropzone);
   background-image: repeating-linear-gradient(45deg,
       transparent,
       transparent 4px,
@@ -285,9 +278,8 @@ body {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow:
-    0 0 5px var(--battleship-miss-color),
-    0 0 10px var(--battleship-miss-color),
-    0 0 20px var(--battleship-miss-color);
+    0 0 16px var(--battleship-miss-color),
+    0 0 8px var(--battleship-miss-color);
 }
 
 .player-board__cell--hit {
@@ -295,18 +287,19 @@ body {
   border: none;
   border-radius: 0.3rem;
   box-shadow:
-    0 0 8px var(--battleship-hit-color),
     0 0 16px var(--battleship-hit-color),
-    0 0 32px var(--battleship-hit-color);
+    0 0 8px var(--battleship-hit-color);
 }
 
 .site-footer {
   color: var(--battleship-accent-color);
   font-size: 1rem;
-  position: fixed;
-  bottom: 3%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: absolute;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  bottom: 0;
 }
 
 .site-footer__icon {
@@ -321,4 +314,236 @@ body {
 
 .site-footer__icon:active {
   transform: scale(1);
+}
+
+/* =========================================
+   MEDIA QUERIES
+   ========================================= */
+@media (min-width:320px) and (max-width:767px) {
+  .main-container {
+    gap: 1.5rem;
+  }
+
+  .main-container__message {
+    font-size: 1rem;
+    width: 15ch;
+  }
+
+  .main-container__game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .player-board {
+    grid-template-columns: repeat(10, 25px);
+    gap: 0.2rem;
+    padding: 0.2rem;
+  }
+
+  .player-board--attackable {
+    box-shadow: 0 0 6px var(--battleship-accent-color);
+    transform: scale(1.03);
+    padding: 0.5rem;
+  }
+
+  .player-board__cell {
+    width: 25px;
+    height: 25px;
+  }
+
+  .player-board__cell--ship,
+  .ship__segment {
+    width: 25px;
+    height: 25px;
+    box-shadow:
+      0 0 8px var(--battleship-ship-color),
+      0 0 4px var(--battleship-ship-color);
+  }
+
+  .ship--draggable {
+    gap: 0.2rem;
+  }
+
+  .dock-container__shipyard {
+    height: 25vh;
+    width: auto;
+    min-width: 185px;
+    gap: 0.7rem;
+    padding: 1.5rem;
+  }
+
+  .battleship__button {
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1rem;
+  }
+
+  .battleship__button--new-game {
+    margin-bottom: 3rem;
+  }
+
+  .player-board__cell--valid-dropzone {
+    box-shadow:
+      0 0 4px var(--battleship-ship-valid-dropzone),
+      0 0 2px var(--battleship-ship-valid-dropzone);
+  }
+
+  .player-board__cell--invalid-dropzone {
+    box-shadow:
+      0 0 4px var(--battleship-ship-invalid-dropzone),
+      0 0 2px var(--battleship-ship-invalid-dropzone);
+  }
+
+  .player-board__cell--hit {
+    box-shadow:
+      0 0 8px var(--battleship-hit-color),
+      0 0 4px var(--battleship-hit-color);
+  }
+
+  .player-board__cell--miss::after {
+    width: 6px;
+    height: 6px;
+    box-shadow:
+      0 0 8px var(--battleship-miss-color),
+      0 0 4px var(--battleship-miss-color);
+  }
+
+  .site-footer {
+    font-size: 0.5rem;
+  }
+
+  .site-footer__icon {
+    height: 14px;
+    width: 14px;
+  }
+}
+
+@media (min-width:375px) and (max-width: 767px) {
+  .main-container__message {
+    font-size: 1.2rem;
+    width: 20ch;
+  }
+}
+
+@media (min-width:768px) and (max-width: 1023px) {
+  .main-container {
+    gap: 2rem;
+  }
+
+  .main-container__message {
+    font-size: 1.5rem;
+  }
+
+  .main-container__game {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .player-board {
+    grid-template-columns: repeat(10, 27px);
+    gap: 0.3rem;
+  }
+
+  .player-board--attackable {
+    box-shadow: 0 0 12px var(--battleship-accent-color);
+    transform: scale(1.03);
+  }
+
+  .player-board__cell {
+    width: 27px;
+    height: 27px;
+  }
+
+  .player-board__cell--ship,
+  .ship__segment {
+    width: 27px;
+    height: 27px;
+  }
+
+  .ship--draggable {
+    gap: 0.3rem;
+  }
+
+  .dock-container__shipyard {
+    height: 27vh;
+    width: auto;
+    min-width: 220px;
+    gap: 0.7rem;
+  }
+
+  .battleship__button {
+    padding: 0.3rem;
+    font-size: 0.9rem;
+  }
+
+  .battleship__button--new-game {
+    margin-bottom: 5rem;
+  }
+
+  .player-board__cell--valid-dropzone {
+    box-shadow:
+      0 0 16px var(--battleship-ship-valid-dropzone),
+      0 0 8px var(--battleship-ship-valid-dropzone),
+  }
+
+  .player-board__cell--invalid-dropzone {
+    box-shadow:
+      0 0 16px var(--battleship-ship-invalid-dropzone),
+      0 0 8px var(--battleship-ship-invalid-dropzone);
+  }
+
+  .player-board__cell--miss::after {
+    width: 8px;
+    height: 8px;
+    box-shadow:
+      0 0 16px var(--battleship-miss-color),
+      0 0 8px var(--battleship-miss-color);
+  }
+
+  .player-board__cell--hit {
+    box-shadow:
+      0 0 16px var(--battleship-hit-color),
+      0 0 8px var(--battleship-hit-color);
+  }
+
+  .site-footer {
+    font-size: 0.7rem;
+  }
+
+  .site-footer__icon {
+    height: 16px;
+    width: 16px;
+  }
+}
+
+@media (min-width:1024px) {
+  .player-board {
+    grid-template-columns: repeat(10, 35px);
+    gap: 0.4rem;
+  }
+
+  .player-board__cell {
+    width: 35px;
+    height: 35px;
+  }
+
+  .player-board__cell--ship,
+  .ship__segment {
+    width: 35px;
+    height: 35px;
+  }
+
+  .ship--draggable {
+    gap: 0.4rem;
+  }
+
+  .dock-container__shipyard {
+    height: 37vh;
+    width: auto;
+    min-width: 265px;
+    gap: 1rem;
+  }
 }
