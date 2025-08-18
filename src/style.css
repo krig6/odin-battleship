@@ -20,6 +20,7 @@
   --battleship-cell-color: #75A9E1;
   --battleship-hit-color: #E53935;
   --battleship-miss-color: #CBB2F0;
+  --battleship-ship-preview-color: #39FF14;
 }
 
 /* =========================================
@@ -147,7 +148,7 @@ body {
 }
 
 .ship--dragging {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: grabbing;
 }
 
@@ -234,8 +235,22 @@ body {
 }
 
 /* =========================================
-   HIT / MISS STATES
+  HIT / MISS / DROPZONE STATES
+   - neon green for dropzone
+   - red glow for hit
+   - purple glow for miss
    ========================================= */
+.player-board__cell--dropzone:not(.player-board__cell--ship) {
+  background-color: var(--battleship-ship-preview-color);
+  opacity: 0.9;
+  outline: 2px solid #39FF14;
+  outline-offset: -2px;
+  box-shadow:
+    0 0 5px var(--battleship-ship-preview-color),
+    0 0 10px var(--battleship-ship-preview-color),
+    0 0 20px var(--battleship-ship-preview-color);
+}
+
 .player-board__cell--miss {
   position: relative;
   background-color: transparent;
