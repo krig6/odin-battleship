@@ -5,7 +5,6 @@ import {
   mainContainerElement,
   player1BoardElement,
   player2BoardElement,
-  enableBoardDropZones,
   renderPlayerBoard,
   renderDockContainer,
   createNewGameButton,
@@ -69,8 +68,7 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
   renderPlayerBoard(player1, player1BoardElement);
-  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
-  enableBoardDropZones(player1BoardElement);
+  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame, player1, player1BoardElement);
   setupBoardEventListeners(player1, player1BoardElement);
   displayGameMessage();
 };
@@ -85,7 +83,6 @@ const setupBoardEventListeners = (player, playerBoardElement) => {
       player.gameboard.placeShip(startRow, startColumn, ship, orientation);
       removeDraggableShips(shipType);
       renderPlayerBoard(player, playerBoardElement);
-      enableBoardDropZones(playerBoardElement);
     } catch (err) {
       displayGameMessage(err.message);
     }
@@ -98,7 +95,6 @@ const setupBoardEventListeners = (player, playerBoardElement) => {
     if (!wasRotated) return;
 
     renderPlayerBoard(player, playerBoardElement);
-    enableBoardDropZones(playerBoardElement);
   });
 };
 
@@ -194,7 +190,6 @@ const resetBoard = () => {
   const fleet = createFleet(player1);
   renderPlayerBoard(player1, player1BoardElement);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
-  enableBoardDropZones(player1BoardElement);
   gameState.isFirstTurn = true;
 };
 

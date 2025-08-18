@@ -54,11 +54,6 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   }
 };
 
-export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
-  const gameContainerElement = document.querySelector('.main-container__game');
-
-  const dockContainerElement = document.createElement('div');
-  dockContainerElement.classList.add('dock-container');
 const dispatchRotateShip = (cellElement, shipId) => {
   cellElement.dispatchEvent(new CustomEvent('rotate-ship', {
     detail: { shipId },
@@ -66,70 +61,176 @@ const dispatchRotateShip = (cellElement, shipId) => {
   }));
 };
 
-  const dockShipyard = createDockShipyard(fleet);
-  const randomizeBtnElement = createRandomizeButton(onRandomize);
-  const resetBtnElement = createResetButton(onReset);
-  const startBtnElement = createStartGameButton(onStart);
+export const renderDockContainer = (fleet, onRandomize, onReset, onStart, player, playerBoardElement) => {
+  const gameContainer = document.querySelector('.main-container__game');
+  const dockContainer = document.createElement('div');
+  dockContainer.classList.add('dock-container');
 
+  const dockShipyard = createDockShipyard(fleet, player, playerBoardElement);
   const dockActions = document.createElement('div');
   dockActions.classList.add('dock-container__actions');
-  dockActions.append(randomizeBtnElement, resetBtnElement, startBtnElement);
+  dockActions.append(
+    createRandomizeButton(onRandomize),
+    createResetButton(onReset),
+    createStartGameButton(onStart)
+  );
 
-  dockContainerElement.append(dockShipyard, dockActions);
-  gameContainerElement.append(dockContainerElement);
+  dockContainer.append(dockShipyard, dockActions);
+  gameContainer.append(dockContainer);
 };
 
-const createDockShipyard = (fleetConfig) => {
-  const dockShipyardElement = document.createElement('div');
-  dockShipyardElement.classList.add('dock-container__shipyard');
+export const createDockShipyard = (fleet, player, playerBoardElement) => {
+  const dockShipyard = document.createElement('div');
+  dockShipyard.classList.add('dock-container__shipyard');
 
-  const ships = Object.values(fleetConfig);
+  const dragState = {
+    isDragging: false,
+    beingDragged: null,
+    startX: 0,
+    startY: 0,
+    segmentIndex: 0,
+    boardElement: playerBoardElement
+  };
 
-  for (const { length, type } of ships) {
+  Object.values(fleet).forEach((ship) => {
     const shipElement = document.createElement('div');
     shipElement.classList.add('ship', 'ship--draggable');
-    shipElement.setAttribute('draggable', true);
-    shipElement.dataset.type = type;
-    shipElement.dataset.length = length;
+    shipElement.dataset.type = ship.type;
+    shipElement.dataset.orientation = 'horizontal';
 
-    let orientation = 'horizontal';
-    let dragOffset = 0;
-
-    shipElement.addEventListener('mousedown', (e) => {
-      const part = e.target.closest('.ship__segment');
-      dragOffset = part ? [...part.parentNode.children].indexOf(part) : 0;
-      shipElement.dataset.offset = dragOffset;
-    });
-
-    shipElement.addEventListener('click', () => {
-      orientation = orientation === 'horizontal' ? 'vertical' : 'horizontal';
-      shipElement.classList.toggle('ship--vertical');
-      shipElement.dataset.orientation = orientation;
-    });
-
-    shipElement.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('text/ship-type', type);
-      e.dataTransfer.setData('text/ship-length', length);
-      e.dataTransfer.setData('text/orientation', orientation);
-      e.dataTransfer.setData('text/drag-offset', dragOffset);
-      e.dataTransfer.effectAllowed = 'move';
-      shipElement.classList.add('ship--dragging');
-    });
-
-    shipElement.addEventListener('dragend', () => {
-      shipElement.classList.remove('ship--dragging');
-    });
-
-    for (let shipElementIndex = 0; shipElementIndex < length; shipElementIndex++) {
-      const segmentElement = document.createElement('div');
-      segmentElement.classList.add('ship__segment');
-      shipElement.appendChild(segmentElement);
+    for (let i = 0; i < ship.length; i++) {
+      const segment = document.createElement('div');
+      segment.classList.add('ship__segment');
+      shipElement.appendChild(segment);
     }
 
-    dockShipyardElement.appendChild(shipElement);
-  }
+    const startDrag = (x, y, segmentIndex) => {
+      dragState.isDragging = true;
+      dragState.beingDragged = shipElement;
+      dragState.startX = x;
+      dragState.startY = y;
+      dragState.segmentIndex = segmentIndex;
+      shipElement.style.cursor = 'grabbing';
+      shipElement.classList.add('ship--dragging');
+    };
 
-  return dockShipyardElement;
+    const calculateSegmentIndex = (e, orientation) => {
+      const rect = shipElement.getBoundingClientRect();
+      return orientation === 'horizontal'
+        ? Math.floor((e.clientX - rect.left) / (rect.width / ship.length))
+        : Math.floor((e.clientY - rect.top) / (rect.height / ship.length));
+    };
+
+    shipElement.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const index = calculateSegmentIndex(e, shipElement.dataset.orientation);
+      startDrag(e.clientX, e.clientY, index);
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', onDrop);
+    });
+
+    shipElement.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const t = e.touches[0];
+      const index = calculateSegmentIndex(t, shipElement.dataset.orientation);
+      startDrag(t.clientX, t.clientY, index);
+      document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('touchend', onDrop, { passive: false });
+    });
+
+    dockShipyard.appendChild(shipElement);
+  });
+
+  const onDrag = (e) => {
+    if (!dragState.isDragging) return;
+    const x = e.clientX ?? e.touches[0].clientX;
+    const y = e.clientY ?? e.touches[0].clientY;
+    dragState.beingDragged.style.transform = `translate(${x - dragState.startX}px, ${y - dragState.startY}px)`;
+
+    const prevVisibility = dragState.beingDragged.style.visibility;
+    dragState.beingDragged.style.visibility = 'hidden';
+    const hoverCell = document.elementFromPoint(x, y);
+
+    dragState.beingDragged.style.visibility = prevVisibility;
+
+    if (!hoverCell || !hoverCell.classList.contains('player-board__cell')) {
+      dragState.boardElement.querySelectorAll('.player-board__cell--dropzone').forEach(c => c.classList.remove('player-board__cell--dropzone'));
+      return;
+    }
+
+    let row = parseInt(hoverCell.dataset.row, 10);
+    let column = parseInt(hoverCell.dataset.column, 10);
+    const orientation = dragState.beingDragged.dataset.orientation;
+    const length = fleet[dragState.beingDragged.dataset.type].length;
+
+    if (orientation === 'horizontal') column -= dragState.segmentIndex;
+    else row -= dragState.segmentIndex;
+
+    highlightShipPreview(dragState.boardElement, row, column, length, orientation);
+  };
+
+  const onDrop = (e) => {
+    dragState.boardElement.querySelectorAll('.player-board__cell--dropzone')
+      .forEach(c => c.classList.remove('player-board__cell--dropzone'));
+    if (!dragState.isDragging) return;
+
+    const x = e.clientX ?? e.changedTouches[0].clientX;
+    const y = e.clientY ?? e.changedTouches[0].clientY;
+    const shipElement = dragState.beingDragged;
+    dragState.isDragging = false;
+    dragState.beingDragged = null;
+    shipElement.classList.remove('ship--dragging');
+
+    const prevVisibility = shipElement.style.visibility;
+    shipElement.style.visibility = 'hidden';
+    const dropTarget = document.elementFromPoint(x, y);
+    shipElement.style.visibility = prevVisibility;
+
+    const type = shipElement.dataset.type;
+    const ship = fleet[type];
+
+    if (!ship || ship.isPlaced) return;
+
+    let placed = false;
+
+    if (dropTarget && dropTarget.classList.contains('player-board__cell')) {
+      let row = parseInt(dropTarget.dataset.row, 10);
+      let column = parseInt(dropTarget.dataset.column, 10);
+      const orientation = shipElement.dataset.orientation;
+
+      if (orientation === 'horizontal') column -= dragState.segmentIndex;
+      else row -= dragState.segmentIndex;
+
+      try {
+        player.gameboard.placeShip(row, column, ship, orientation);
+        ship.isPlaced = true;
+        shipElement.remove();
+        renderPlayerBoard(player, dragState.boardElement);
+        placed = true;
+      } catch (err) {
+        displayGameMessage(err.message);
+      }
+    }
+
+    if (!placed) {
+      shipElement.style.transform = '';
+      shipElement.style.visibility = '';
+    }
+  };
+
+  return dockShipyard;
+};
+
+const highlightShipPreview = (board, startRow, startColumn, length, orientation) => {
+  board.querySelectorAll('.player-board__cell--dropzone').forEach(c => c.classList.remove('player-board__cell--dropzone'));
+  for (let segmentOffset = 0; segmentOffset < length; segmentOffset++) {
+    let row = startRow;
+    let column = startColumn;
+    if (orientation === 'horizontal') column += segmentOffset;
+    else row += segmentOffset;
+    const cell = board.querySelector(`.player-board__cell[data-row="${row}"][data-column="${column}"]`);
+    if (cell) cell.classList.add('player-board__cell--dropzone');
+  }
 };
 
 const createButton = (label, modifier, onClickHandler) => {
@@ -151,48 +252,6 @@ export const createStartGameButton = (onClickHandler) =>
 
 export const createNewGameButton = (onClickHandler) =>
   createButton('New Game', 'new-game', onClickHandler);
-
-export const enableBoardDropZones = (boardElement) => {
-  const cellElements = boardElement.querySelectorAll('.player-board__cell');
-
-  cellElements.forEach((cellElement) => {
-    cellElement.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    });
-
-    cellElement.addEventListener('drop', (e) => {
-      e.preventDefault();
-
-      const shipType = e.dataTransfer.getData('text/ship-type');
-      const orientation = e.dataTransfer.getData('text/orientation') || 'horizontal';
-      const dragOffset = parseInt(e.dataTransfer.getData('text/drag-offset')) || 0;
-
-      let startRow = parseInt(cellElement.dataset.row);
-      let startColumn = parseInt(cellElement.dataset.column);
-
-      if (orientation === 'horizontal') {
-        startColumn -= dragOffset;
-      } else {
-        startRow -= dragOffset;
-      }
-
-      const eventData = {
-        shipType,
-        startRow,
-        startColumn,
-        orientation
-      };
-
-      const placeEvent = new CustomEvent('place-ship', {
-        detail: eventData,
-        bubbles: true
-      });
-
-      cellElement.dispatchEvent(placeEvent);
-    });
-  });
-};
 
 export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
   const messageContainerElement = document.querySelector('.main-container__message');
