@@ -8,8 +8,7 @@ export const uiState = {
 };
 
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
-  const successfulHits = player.gameboard.successfulHits;
-  const missedShots = player.gameboard.missedShots;
+  const { successfulHits, missedShots } = player.gameboard;
   const boardGrid = player.gameboard.getGrid();
   boardElement.innerHTML = '';
 
@@ -20,33 +19,34 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
       cellElement.dataset.row = row;
       cellElement.dataset.column = column;
 
-      cellElement.addEventListener('dblclick', () => {
-        const shipId = cellElement.dataset.shipId;
-        if (!shipId) return;
-
-        const rotateEvent = new CustomEvent('rotate-ship', {
-          detail: { shipId },
-          bubbles: true
-        });
-
-        cellElement.dispatchEvent(rotateEvent);
-      });
-
       const cellValue = boardGrid[row][column];
       const positionKey = `${row},${column}`;
 
-      if (successfulHits.has(positionKey)) {
-        cellElement.classList.add('player-board__cell--hit');
-        cellElement.classList.add('smoke');
-      }
-
-      if (missedShots.has(positionKey)) {
-        cellElement.classList.add('player-board__cell--miss');
-      }
+      if (successfulHits.has(positionKey)) cellElement.classList.add('player-board__cell--hit', 'smoke');
+      if (missedShots.has(positionKey)) cellElement.classList.add('player-board__cell--miss');
 
       if (cellValue && revealShips) {
         cellElement.classList.add('player-board__cell--ship');
         cellElement.dataset.shipId = cellValue.id;
+
+        cellElement.addEventListener('dblclick', () => {
+          const shipId = cellElement.dataset.shipId;
+          if (!shipId) return;
+          dispatchRotateShip(cellElement, shipId);
+        });
+
+        let lastTap = 0;
+        cellElement.addEventListener('touchend', (e) => {
+          const shipId = cellElement.dataset.shipId;
+          if (!shipId) return;
+
+          const now = Date.now();
+          if (now - lastTap < 300 && now - lastTap > 0) {
+            e.preventDefault();
+            dispatchRotateShip(cellElement, shipId);
+          }
+          lastTap = now;
+        });
       }
 
       boardElement.appendChild(cellElement);
@@ -59,6 +59,12 @@ export const renderDockContainer = (fleet, onRandomize, onReset, onStart) => {
 
   const dockContainerElement = document.createElement('div');
   dockContainerElement.classList.add('dock-container');
+const dispatchRotateShip = (cellElement, shipId) => {
+  cellElement.dispatchEvent(new CustomEvent('rotate-ship', {
+    detail: { shipId },
+    bubbles: true
+  }));
+};
 
   const dockShipyard = createDockShipyard(fleet);
   const randomizeBtnElement = createRandomizeButton(onRandomize);
