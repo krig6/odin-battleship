@@ -189,7 +189,7 @@ const resetBoard = () => {
 
   const fleet = createFleet(player1);
   renderPlayerBoard(player1, player1BoardElement);
-  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame);
+  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame, player1, player1BoardElement);
   gameState.isFirstTurn = true;
 };
 
