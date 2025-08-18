@@ -20,7 +20,8 @@
   --battleship-cell-color: #75A9E1;
   --battleship-hit-color: #E53935;
   --battleship-miss-color: #CBB2F0;
-  --battleship-ship-preview-color: #39FF14;
+  --battleship-ship-valid-dropzone: #39FF14;
+  --battleship-ship-invalid-dropzone: var(--battleship-hit-color);
 }
 
 /* =========================================
@@ -240,15 +241,30 @@ body {
    - red glow for hit
    - purple glow for miss
    ========================================= */
-.player-board__cell--dropzone:not(.player-board__cell--ship) {
-  background-color: var(--battleship-ship-preview-color);
+.player-board__cell--valid-dropzone {
+  background-color: var(--battleship-ship-valid-dropzone);
   opacity: 0.9;
   outline: 2px solid #39FF14;
   outline-offset: -2px;
   box-shadow:
-    0 0 5px var(--battleship-ship-preview-color),
-    0 0 10px var(--battleship-ship-preview-color),
-    0 0 20px var(--battleship-ship-preview-color);
+    0 0 5px var(--battleship-ship-valid-dropzone),
+    0 0 10px var(--battleship-ship-valid-dropzone),
+    0 0 20px var(--battleship-ship-valid-dropzone);
+}
+
+.player-board__cell--invalid-dropzone {
+  background-color: var(--battleship-ship-invalid-dropzone);
+  opacity: 0.9;
+  outline: 2px solid var(--battleship-ship-invalid-dropzone);
+  outline-offset: -2px;
+  box-shadow:
+    0 0 5px var(--battleship-ship-invalid-dropzone),
+    0 0 15px var(--battleship-ship-invalid-dropzone);
+  background-image: repeating-linear-gradient(45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.2) 4px,
+      rgba(255, 255, 255, 0.2) 8px);
 }
 
 .player-board__cell--miss {

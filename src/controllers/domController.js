@@ -154,7 +154,8 @@ export const createDockShipyard = (fleet, player, playerBoardElement) => {
     dragState.beingDragged.style.visibility = prevVisibility;
 
     if (!hoverCell || !hoverCell.classList.contains('player-board__cell')) {
-      dragState.boardElement.querySelectorAll('.player-board__cell--dropzone').forEach(c => c.classList.remove('player-board__cell--dropzone'));
+      dragState.boardElement.querySelectorAll('.player-board__cell--valid-dropzone, .player-board__cell--invalid-dropzone')
+        .forEach(c => c.classList.remove('player-board__cell--valid-dropzone', 'player-board__cell--invalid-dropzone'));
       return;
     }
 
@@ -166,12 +167,14 @@ export const createDockShipyard = (fleet, player, playerBoardElement) => {
     if (orientation === 'horizontal') column -= dragState.segmentIndex;
     else row -= dragState.segmentIndex;
 
-    highlightShipPreview(dragState.boardElement, row, column, length, orientation);
+    renderShipPlacementPreview(dragState.boardElement, row, column, length, orientation, player);
   };
 
   const onDrop = (e) => {
-    dragState.boardElement.querySelectorAll('.player-board__cell--dropzone')
-      .forEach(c => c.classList.remove('player-board__cell--dropzone'));
+    const board = dragState.boardElement;
+    board.querySelectorAll('.player-board__cell--valid-dropzone, .player-board__cell--invalid-dropzone')
+      .forEach(c => c.classList.remove('player-board__cell--valid-dropzone', 'player-board__cell--invalid-dropzone'));
+
     if (!dragState.isDragging) return;
 
     const x = e.clientX ?? e.changedTouches[0].clientX;
@@ -205,9 +208,11 @@ export const createDockShipyard = (fleet, player, playerBoardElement) => {
         player.gameboard.placeShip(row, column, ship, orientation);
         ship.isPlaced = true;
         shipElement.remove();
-        renderPlayerBoard(player, dragState.boardElement);
+        renderPlayerBoard(player, board);
         placed = true;
       } catch (err) {
+        shipElement.style.transform = '';
+        shipElement.style.visibility = '';
         displayGameMessage(err.message);
       }
     }
@@ -221,15 +226,38 @@ export const createDockShipyard = (fleet, player, playerBoardElement) => {
   return dockShipyard;
 };
 
-const highlightShipPreview = (board, startRow, startColumn, length, orientation) => {
-  board.querySelectorAll('.player-board__cell--dropzone').forEach(c => c.classList.remove('player-board__cell--dropzone'));
+const renderShipPlacementPreview = (board, startRow, startColumn, length, orientation, player) => {
+  board.querySelectorAll('.player-board__cell--valid-dropzone, .player-board__cell--invalid-dropzone')
+    .forEach(c => c.classList.remove('player-board__cell--valid-dropzone', 'player-board__cell--invalid-dropzone'));
+
   for (let segmentOffset = 0; segmentOffset < length; segmentOffset++) {
     let row = startRow;
     let column = startColumn;
     if (orientation === 'horizontal') column += segmentOffset;
     else row += segmentOffset;
+
     const cell = board.querySelector(`.player-board__cell[data-row="${row}"][data-column="${column}"]`);
-    if (cell) cell.classList.add('player-board__cell--dropzone');
+    if (!cell) continue;
+
+    let valid = true;
+
+    for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+      for (let colOffset = -1; colOffset <= 1; colOffset++) {
+        const r = row + rowOffset;
+        const c = column + colOffset;
+        if (r < 0 || r >= player.gameboard.boardSize || c < 0 || c >= player.gameboard.boardSize) continue;
+        const occupyingShip = player.gameboard.board[r][c];
+        if (occupyingShip) valid = false;
+      }
+    }
+
+    if (valid) {
+      cell.classList.add('player-board__cell--valid-dropzone');
+      cell.classList.remove('player-board__cell--invalid-dropzone');
+    } else {
+      cell.classList.add('player-board__cell--invalid-dropzone');
+      cell.classList.remove('player-board__cell--valid-dropzone');
+    }
   }
 };
 
