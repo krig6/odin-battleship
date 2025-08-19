@@ -220,21 +220,15 @@ const setupAttackListeners = () => {
   if (uiState.player1ClickHandler) {
     player2BoardElement.removeEventListener('click', uiState.player1ClickHandler);
   }
-  if (uiState.player2ClickHandler) {
-    player1BoardElement.removeEventListener('click', uiState.player2ClickHandler);
-  }
 
   uiState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2BoardElement);
-  uiState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1BoardElement);
 
-  player1BoardElement.addEventListener('click', uiState.player2ClickHandler);
   player2BoardElement.addEventListener('click', uiState.player1ClickHandler);
 };
 
 const setRandomStartingPlayer = () => {
   gameState.currentTurn = Math.random() < 0.5 ? player1.id : player2.id;
 };
-
 
 const resetGameState = () => {
   gameState.currentTurn = null;
@@ -259,7 +253,6 @@ const newGame = () => {
   setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
-
 
 export const handleTurn = () => {
   if (!gameState.isFirstTurn) {
