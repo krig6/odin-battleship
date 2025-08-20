@@ -221,10 +221,6 @@ body::after {
   transform: scale(1.03);
 }
 
-.battleship__button--new-game:hover {
-  transform: translateX(-50%) scale(1.03);
-}
-
 .battleship__button:active {
   box-shadow: 0 0 3px var(--battleship-accent-color);
   transform: scale(0.97);
