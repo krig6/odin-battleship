@@ -15,7 +15,10 @@ import {
   uiState,
   removeNewGameButton,
   clearAllBoardStates,
-  enableAttackableBoards
+  enableAttackableBoards,
+  enableShipRotation,
+  disableShipRotation,
+  enableShipPlacement
 } from './domController.js';
 
 import {
@@ -69,33 +72,9 @@ export const setupPlayerOnePlacementScreen = () => {
   const fleet = createFleet(player1);
   renderPlayerBoard(player1, player1BoardElement);
   renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame, player1, player1BoardElement);
-  setupBoardEventListeners(player1, player1BoardElement);
+  enableShipPlacement(player1, player1BoardElement);
+  enableShipRotation(player1, player1BoardElement, attemptToRotateShip);
   displayGameMessage();
-};
-
-const setupBoardEventListeners = (player, playerBoardElement) => {
-  playerBoardElement.addEventListener('place-ship', (e) => {
-    const { shipType, startRow, startColumn, orientation } = e.detail;
-
-    try {
-      const ship = player.gameboard.fleet[shipType];
-
-      player.gameboard.placeShip(startRow, startColumn, ship, orientation);
-      removeDraggableShips(shipType);
-      renderPlayerBoard(player, playerBoardElement);
-    } catch (err) {
-      displayGameMessage(err.message);
-    }
-  });
-
-  playerBoardElement.addEventListener('rotate-ship', (e) => {
-    const shipId = e.detail.shipId;
-
-    const wasRotated = attemptToRotateShip(player.gameboard, shipId);
-    if (!wasRotated) return;
-
-    renderPlayerBoard(player, playerBoardElement);
-  });
 };
 
 const attemptToRotateShip = (gameboard, shipId) => {
@@ -199,6 +178,7 @@ const startGame = () => {
     return;
   }
 
+  disableShipRotation(player1BoardElement);
   removeDockContainer();
 
   setRandomStartingPlayer();
@@ -250,7 +230,6 @@ const newGame = () => {
   player2.gameboard.reset();
 
   removeNewGameButton();
-  setRandomStartingPlayer();
   setupPlayerOnePlacementScreen();
 };
 
