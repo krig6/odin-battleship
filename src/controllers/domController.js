@@ -4,7 +4,8 @@ export const mainContainerElement = document.querySelector('.main-container');
 
 export const uiState = {
   player1ClickHandler: null,
-  player2ClickHandler: null
+  player2ClickHandler: null,
+  shipRotationHandler: null
 };
 
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
@@ -28,37 +29,11 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
       if (cellValue && revealShips) {
         cellElement.classList.add('player-board__cell--ship');
         cellElement.dataset.shipId = cellValue.id;
-
-        cellElement.addEventListener('dblclick', () => {
-          const shipId = cellElement.dataset.shipId;
-          if (!shipId) return;
-          dispatchRotateShip(cellElement, shipId);
-        });
-
-        let lastTap = 0;
-        cellElement.addEventListener('touchend', (e) => {
-          const shipId = cellElement.dataset.shipId;
-          if (!shipId) return;
-
-          const now = Date.now();
-          if (now - lastTap < 300 && now - lastTap > 0) {
-            e.preventDefault();
-            dispatchRotateShip(cellElement, shipId);
-          }
-          lastTap = now;
-        });
       }
 
       boardElement.appendChild(cellElement);
     }
   }
-};
-
-const dispatchRotateShip = (cellElement, shipId) => {
-  cellElement.dispatchEvent(new CustomEvent('rotate-ship', {
-    detail: { shipId },
-    bubbles: true
-  }));
 };
 
 export const renderDockContainer = (fleet, onRandomize, onReset, onStart, player, playerBoardElement) => {
@@ -221,6 +196,11 @@ export const createDockShipyard = (fleet, player, playerBoardElement) => {
       shipElement.style.transform = '';
       shipElement.style.visibility = '';
     }
+
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', onDrop);
+    document.removeEventListener('touchmove', onDrag);
+    document.removeEventListener('touchend', onDrop);
   };
 
   return dockShipyard;
@@ -334,3 +314,46 @@ export const removeNewGameButton = () => {
     newGameButtonElement.remove();
   }
 };
+
+export const enableShipRotation = (player, playerBoardElement, rotateShipOnBoard) => {
+  if (uiState.shipRotationHandler) {
+    playerBoardElement.removeEventListener('click', uiState.shipRotationHandler);
+  }
+  uiState.shipRotationHandler = handleShipRotation(player, playerBoardElement, rotateShipOnBoard);
+  playerBoardElement.addEventListener('click', uiState.shipRotationHandler);
+};
+
+const handleShipRotation = (player, playerBoardElement, rotateShipOnBoard) => {
+  return (e) => {
+    const cellElement = e.target;
+    if (!cellElement.classList.contains('player-board__cell--ship')) return;
+
+    const shipId = cellElement.dataset.shipId;
+    const wasRotated = rotateShipOnBoard(player.gameboard, shipId);
+    if (!wasRotated) return;
+
+    renderPlayerBoard(player, playerBoardElement);
+  };
+};
+
+export const disableShipRotation = (playerBoardElement) => {
+  if (uiState.shipRotationHandler) {
+    playerBoardElement.removeEventListener('click', uiState.shipRotationHandler);
+    uiState.shipRotationHandler = null;
+  }
+};
+
+export const enableShipPlacement = (player, playerBoardElement) => {
+  playerBoardElement.addEventListener('place-ship', (e) => {
+    const { shipType, startRow, startColumn, orientation } = e.detail;
+    try {
+      const ship = player.gameboard.fleet[shipType];
+      player.gameboard.placeShip(startRow, startColumn, ship, orientation);
+      removeDraggableShips(shipType);
+      renderPlayerBoard(player, playerBoardElement);
+    } catch (err) {
+      displayGameMessage(err.message);
+    }
+  });
+};
+
