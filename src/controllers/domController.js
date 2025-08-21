@@ -5,7 +5,8 @@ export const mainContainerElement = document.querySelector('.main-container');
 export const uiState = {
   player1ClickHandler: null,
   player2ClickHandler: null,
-  shipRotationHandler: null
+  shipRotationHandler: null,
+  shipPlacementHandler: null
 };
 
 export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
@@ -343,8 +344,8 @@ export const disableShipRotation = (playerBoardElement) => {
   }
 };
 
-export const enableShipPlacement = (player, playerBoardElement) => {
-  playerBoardElement.addEventListener('place-ship', (e) => {
+const handleShipPlacement = (player, playerBoardElement) => {
+  return (e) => {
     const { shipType, startRow, startColumn, orientation } = e.detail;
     try {
       const ship = player.gameboard.fleet[shipType];
@@ -354,6 +355,20 @@ export const enableShipPlacement = (player, playerBoardElement) => {
     } catch (err) {
       displayGameMessage(err.message);
     }
-  });
+  };
 };
 
+export const enableShipPlacement = (player, playerBoardElement) => {
+  if (uiState.shipPlacementHandler) {
+    playerBoardElement.removeEventListener('place-ship', uiState.shipPlacementHandler);
+  }
+  uiState.shipPlacementHandler = handleShipPlacement(player, playerBoardElement);
+  playerBoardElement.addEventListener('place-ship', uiState.shipPlacementHandler);
+};
+
+export const disableShipPlacement = (playerBoardElement) => {
+  if (uiState.shipPlacementHandler) {
+    playerBoardElement.removeEventListener('place-ship', uiState.shipPlacementHandler);
+    uiState.shipPlacementHandler = null;
+  }
+};

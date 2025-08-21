@@ -18,7 +18,8 @@ import {
   enableAttackableBoards,
   enableShipRotation,
   disableShipRotation,
-  enableShipPlacement
+  enableShipPlacement,
+  disableShipPlacement
 } from './domController.js';
 
 import {
@@ -178,6 +179,7 @@ const startGame = () => {
     return;
   }
 
+  disableShipPlacement(player1BoardElement);
   disableShipRotation(player1BoardElement);
   removeDockContainer();
 
