@@ -1,6 +1,7 @@
 import './style.css';
-import { setupPlayerOnePlacementScreen } from './controllers/gameController.js';
 import { renderFooter } from './components/footer.js';
+import { renderGameModeSelection } from './controllers/domController.js';
+import { setupGame } from './controllers/gameController.js';
 
-setupPlayerOnePlacementScreen();
+renderGameModeSelection(setupGame);
 renderFooter();
