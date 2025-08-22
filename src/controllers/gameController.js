@@ -19,7 +19,9 @@ import {
   enableShipRotation,
   disableShipRotation,
   enableShipPlacement,
-  disableShipPlacement
+  disableShipPlacement,
+  hidePlayerBoard,
+  showPlayerBoard
 } from './domController.js';
 
 import {
@@ -31,7 +33,7 @@ import {
 } from './aiController.js';
 
 const player1 = new Player('player1');
-const player2 = new Player('player2', 'Computer', true);
+let player2, currentPlacementPlayer;
 
 const FLEET_CONFIG = [
   { type: 'carrier', length: 5 },
@@ -69,13 +71,63 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
   return fleet;
 };
 
-export const setupPlayerOnePlacementScreen = () => {
-  const fleet = createFleet(player1);
-  renderPlayerBoard(player1, player1BoardElement);
-  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame, player1, player1BoardElement);
-  enableShipPlacement(player1, player1BoardElement);
-  enableShipRotation(player1, player1BoardElement, attemptToRotateShip);
-  displayGameMessage();
+export const setupGame = (isSinglePlayer) => {
+  const gameContainerElement = document.querySelector('.main-container__game');
+  gameContainerElement.classList.add(isSinglePlayer
+    ? 'one-player-mode'
+    : 'two-player-mode'
+  );
+
+  player2 = isSinglePlayer
+    ? new Player('player2', 'Computer', true)
+    : new Player('player2');
+
+  currentPlacementPlayer = player1;
+
+  hidePlayerBoard(player2BoardElement);
+
+  startPlacementStep(isSinglePlayer);
+};
+
+const startPlacementStep = (isSinglePlayer) => {
+  prepareFleetPlacement({
+    player: currentPlacementPlayer,
+    playerBoardElement: currentPlacementPlayer === player1 ? player1BoardElement : player2BoardElement,
+    onRandomize: () => randomizePlayerPlacement(currentPlacementPlayer),
+    onReset: () => resetBoard(currentPlacementPlayer, () => startPlacementStep(isSinglePlayer)),
+    onStart: () => {
+      if (!isSinglePlayer && currentPlacementPlayer === player1) {
+        currentPlacementPlayer = player2;
+        startPlacementStep(isSinglePlayer);
+      } else {
+        startGame();
+      }
+    },
+    mode: isSinglePlayer ? '1-Player' : '2-Player',
+    hideOtherBoard: currentPlacementPlayer === player1 ? player2BoardElement : player1BoardElement
+  });
+};
+
+const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onReset, onStart, mode, hideOtherBoard }) => {
+  if (hideOtherBoard) hidePlayerBoard(hideOtherBoard);
+  showPlayerBoard(playerBoardElement);
+
+  removeDockContainer();
+  const fleet = createFleet(player);
+  renderPlayerBoard(player, playerBoardElement);
+  renderDockContainer(fleet, onRandomize, onReset, onStart, player, playerBoardElement, mode);
+
+  enableShipPlacement(player, playerBoardElement);
+  enableShipRotation(player, playerBoardElement, attemptToRotateShip);
+  if (currentPlacementPlayer.isComputer) {
+    displayGameMessage();
+  } else {
+    displayGameMessage(
+      currentPlacementPlayer === player1
+        ? 'Player 1: Place your ships and confirm when ready.'
+        : 'Player 2: Place your ships and confirm when ready.'
+    );
+  }
 };
 
 const attemptToRotateShip = (gameboard, shipId) => {
@@ -154,26 +206,39 @@ const autoPlaceFleet = (player, boardElement, afterPlacement = () => { }) => {
   renderPlayerBoard(player, boardElement);
 };
 
-const randomizePlayerPlacement = () => {
-  autoPlaceFleet(player1, player1BoardElement, removeDraggableShips);
+const randomizePlayerPlacement = (player) => {
+  const playerBoardElement = player === player1 ? player1BoardElement : player2BoardElement;
+  autoPlaceFleet(player, playerBoardElement, removeDraggableShips);
 };
 
 const randomizeComputerPlacement = () => {
   autoPlaceFleet(player2, player2BoardElement);
 };
 
-const resetBoard = () => {
-  player1.gameboard.reset();
+const resetBoard = (player, callback) => {
+  const playerBoardElement = player === player1 ? player1BoardElement : player2BoardElement;
+
+  player.gameboard.reset();
 
   removeDockContainer();
 
-  const fleet = createFleet(player1);
-  renderPlayerBoard(player1, player1BoardElement);
-  renderDockContainer(fleet, randomizePlayerPlacement, resetBoard, startGame, player1, player1BoardElement);
+  renderPlayerBoard(player, playerBoardElement);
+  const fleet = createFleet(player);
+  renderDockContainer(
+    fleet,
+    () => randomizePlayerPlacement(player, playerBoardElement),
+    () => resetBoard(player, callback),
+    callback,
+    player,
+    playerBoardElement
+  );
+
   gameState.isFirstTurn = true;
 };
 
 const startGame = () => {
+  showPlayerBoard(player1BoardElement);
+
   if (!isDockEmpty()) {
     displayGameMessage(MESSAGES.DOCK_NOT_EMPTY);
     return;
@@ -181,19 +246,35 @@ const startGame = () => {
 
   disableShipPlacement(player1BoardElement);
   disableShipRotation(player1BoardElement);
+  disableShipPlacement(player2BoardElement);
+  disableShipRotation(player2BoardElement);
   removeDockContainer();
 
   setRandomStartingPlayer();
 
-  displayGameMessage(
-    gameState.currentTurn === player1.id
-      ? MESSAGES.PLAYER1_TURN_FIRST
-      : MESSAGES.PLAYER2_TURN_FIRST
-  );
+  if (player2.isComputer) {
+    renderPlayerBoard(player1, player1BoardElement);
+    setupComputerGameboard();
+    initializeAi(gameState, player2, player1, player1BoardElement, gameOver);
+    displayGameMessage(
+      gameState.currentTurn === player1.id
+        ? MESSAGES.PLAYER1_TURN_FIRST
+        : MESSAGES.PLAYER2_TURN_FIRST
+    );
+  } else {
+    renderPlayerBoard(player1, player1BoardElement, false);
+    renderPlayerBoard(player2, player2BoardElement, false);
+    enableAttackableBoards(player1, player1, player2, player1BoardElement, player2BoardElement);
+    enableAttackableBoards(player2, player1, player2, player1BoardElement, player2BoardElement);
 
-  setupComputerGameboard();
+    displayGameMessage(
+      gameState.currentTurn === player1.id
+        ? 'Player 1: You go first.'
+        : 'Player 2: You go first.'
+    );
+  }
+
   setupAttackListeners();
-  initializeAi(gameState, player2, player1, player1BoardElement, gameOver);
   handleTurn();
   mainContainerElement.appendChild(createNewGameButton(newGame));
 };
@@ -203,9 +284,15 @@ const setupAttackListeners = () => {
     player2BoardElement.removeEventListener('click', uiState.player1ClickHandler);
   }
 
+  if (uiState.player2ClickHandler) {
+    player1BoardElement.removeEventListener('click', uiState.player2ClickHandler);
+  }
+
   uiState.player1ClickHandler = createPlayerAttackHandler(player1, player2, player2BoardElement);
+  uiState.player2ClickHandler = createPlayerAttackHandler(player2, player1, player1BoardElement);
 
   player2BoardElement.addEventListener('click', uiState.player1ClickHandler);
+  if (!player2.isComputer) player1BoardElement.addEventListener('click', uiState.player2ClickHandler);
 };
 
 const setRandomStartingPlayer = () => {
@@ -222,9 +309,7 @@ const newGame = () => {
   resetGameState();
   resetAiState();
 
-  if (player2BoardElement) {
-    player2BoardElement.style.display = 'none';
-  }
+  hidePlayerBoard(player2BoardElement);
 
   clearAllBoardStates();
 
@@ -232,38 +317,47 @@ const newGame = () => {
   player2.gameboard.reset();
 
   removeNewGameButton();
-  setupPlayerOnePlacementScreen();
 };
 
 export const handleTurn = () => {
   if (!gameState.isFirstTurn) {
-    gameState.currentTurn = gameState.currentTurn === player1.id ? player2.id : player1.id;
+    gameState.currentTurn =
+      gameState.currentTurn === player1.id ? player2.id : player1.id;
   }
 
-  const currentPlayer = gameState.currentTurn === player1.id ? player1 : player2;
+  const currentPlayer =
+    gameState.currentTurn === player1.id ? player1 : player2;
+
+  enableAttackableBoards(
+    currentPlayer,
+    player1,
+    player2,
+    player1BoardElement,
+    player2BoardElement
+  );
 
   if (currentPlayer.isComputer) {
-    enableAttackableBoards(currentPlayer);
-
     if (!gameState.isFirstTurn) {
       displayGameMessage(MESSAGES.OPPONENT_TURN);
     }
-
     scheduleAiTurn(executeAiTurn);
   } else {
-    enableAttackableBoards(currentPlayer);
-
     if (!gameState.isFirstTurn) {
-      displayGameMessage(MESSAGES.YOUR_TURN);
+      displayGameMessage(
+        gameState.currentTurn === player1.id
+          ? 'Player 1: It\'s your turn.'
+          : 'Player 2: It\'s your turn.'
+      );
     }
   }
+
   gameState.isFirstTurn = false;
 };
 
 const setupComputerGameboard = () => {
   randomizeComputerPlacement();
   renderPlayerBoard(player2, player2BoardElement, false);
-  player2BoardElement.style.display = 'grid';
+  showPlayerBoard(player2BoardElement);
 };
 
 export const executeAttack = (attacker, defender, row, column) => {
@@ -326,11 +420,18 @@ const gameOver = () => {
   gameState.isGameOver = true;
 
   cancelAiTimer();
-
-  displayGameMessage(gameState.winner === 'player1'
-    ? MESSAGES.VICTORY
-    : MESSAGES.DEFEAT
-  );
+  if (player2.isComputer) {
+    displayGameMessage(gameState.winner === 'player1'
+      ? MESSAGES.VICTORY
+      : MESSAGES.DEFEAT
+    );
+  } else {
+    displayGameMessage(
+      gameState.currentTurn === player1.id
+        ? 'Onalaps si Player 1!'
+        : 'Onalaps si Player 2!'
+    );
+  }
 
   clearAllBoardStates();
   player2BoardElement.style.pointerEvents = 'none';
