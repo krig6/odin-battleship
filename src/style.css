@@ -92,10 +92,6 @@ body::after {
   transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
 }
 
-.player-board[data-player="2"] {
-  display: none;
-}
-
 .player-board--attackable {
   transform: scale(1.02);
   box-shadow: 0 0 24px var(--battleship-accent-color);
@@ -122,12 +118,19 @@ body::after {
   border-radius: 0.3rem;
 }
 
+.two-player-mode .player-board .player-board__cell:not(.player-board__cell--hit):not(.player-board__cell--miss):hover {
+  background-color: var(--battleship-accent-color);
+  border: none;
+  box-shadow: 0 0 4px var(--battleship-accent-color), 0 0 8px var(--battleship-accent-color);
+  outline: 1px solid var(--battleship-accent-color);
+  cursor: crosshair;
+  transition: all 0.2s ease-in-out;
+}
+
 .player-board[data-player="2"] .player-board__cell:not(.player-board__cell--hit):not(.player-board__cell--miss):hover {
   background-color: var(--battleship-accent-color);
   border: none;
-  box-shadow:
-    0 0 4px var(--battleship-accent-color),
-    0 0 8px var(--battleship-accent-color);
+  box-shadow: 0 0 4px var(--battleship-accent-color), 0 0 8px var(--battleship-accent-color);
   outline: 1px solid var(--battleship-accent-color);
   cursor: crosshair;
   transition: all 0.2s ease-in-out;
@@ -542,4 +545,18 @@ body::after {
     min-width: 265px;
     gap: 1rem;
   }
+}
+
+.main-container__mode-select {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: absolute;
+}
+
+.battleship__button.battleship__button--1-player,
+.battleship__button.battleship__button--2-player {
+  font-size: 2rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
 }
