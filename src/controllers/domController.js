@@ -37,7 +37,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   }
 };
 
-export const renderDockContainer = (fleet, onRandomize, onReset, onStart, player, playerBoardElement) => {
+export const renderDockContainer = (fleet, onRandomize, onReset, startGame, player, playerBoardElement, mode = '1Player') => {
   const gameContainer = document.querySelector('.main-container__game');
   const dockContainer = document.createElement('div');
   dockContainer.classList.add('dock-container');
@@ -48,7 +48,7 @@ export const renderDockContainer = (fleet, onRandomize, onReset, onStart, player
   dockActions.append(
     createRandomizeButton(onRandomize),
     createResetButton(onReset),
-    createStartGameButton(onStart)
+    createStartGameButton(mode, startGame)
   );
 
   dockContainer.append(dockShipyard, dockActions);
@@ -256,8 +256,10 @@ export const createRandomizeButton = (onClickHandler) =>
 export const createResetButton = (onClickHandler) =>
   createButton('Reset', 'reset', onClickHandler);
 
-export const createStartGameButton = (onClickHandler) =>
-  createButton('Start', 'start-game', onClickHandler);
+export const createStartGameButton = (mode, onClickHandler) => {
+  const label = mode === '1-Player' ? 'Start' : 'Confirm';
+  return createButton(label, 'start-game', onClickHandler);
+};
 
 export const createNewGameButton = (onClickHandler) =>
   createButton('New Game', 'new-game', onClickHandler);
@@ -281,12 +283,14 @@ export const clearAllBoardStates = () => {
   player2BoardElement.classList.remove('player-board--attackable', 'player-board--protected');
 };
 
-export const enableAttackableBoards = (currentPlayer) => {
-  const humanBoardCanBeAttacked = currentPlayer.isComputer;
-  const aiBoardCanBeAttacked = !currentPlayer.isComputer;
+export const enableAttackableBoards = (attacker, player1, player2, player1BoardElement, player2BoardElement) => {
+  const target = attacker === player1 ? player2 : player1;
 
-  setBoardAttackableState(player1BoardElement, humanBoardCanBeAttacked);
-  setBoardAttackableState(player2BoardElement, aiBoardCanBeAttacked);
+  const player1CanBeAttacked = target === player1;
+  const player2CanBeAttacked = target === player2;
+
+  setBoardAttackableState(player1BoardElement, player1CanBeAttacked);
+  setBoardAttackableState(player2BoardElement, player2CanBeAttacked);
 };
 
 export const removeDockContainer = () => {
@@ -371,4 +375,26 @@ export const disableShipPlacement = (playerBoardElement) => {
     playerBoardElement.removeEventListener('place-ship', uiState.shipPlacementHandler);
     uiState.shipPlacementHandler = null;
   }
+};
+
+export const renderGameModeSelection = (onModeSelect) => {
+  const modeContainer = document.createElement('div');
+  modeContainer.classList.add('main-container__mode-select');
+
+  ['1-Player', '2-Player'].forEach(mode => {
+    const button = createButton(mode, `${mode.toLowerCase()}`, () => {
+      modeContainer.remove();
+      onModeSelect(mode === '1-Player');
+    });
+    modeContainer.appendChild(button);
+  });
+  mainContainerElement.append(modeContainer);
+};
+
+export const showPlayerBoard = (boardElement) => {
+  if (boardElement) boardElement.style.display = 'grid';
+};
+
+export const hidePlayerBoard = (boardElement) => {
+  if (boardElement) boardElement.style.display = 'none';
 };
