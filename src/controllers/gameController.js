@@ -53,23 +53,46 @@ const gameState = {
 
 export const MESSAGES = {
   onePlayer: {
-    TURN_ORDER_P1: 'You go first! Launch your attack!',
-    TURN_ORDER_P2: 'The computer takes the first move. Stay sharp.',
-    TURN_P1: 'Your turn to attack!',
-    TURN_P2: 'Computer’s turn to attack.',
-    VICTORY: 'You’ve sunk the enemy fleet. Victory is yours!',
-    DEFEAT: 'All your ships have been destroyed. Defeat!',
-    ERROR_DOCK_NOT_EMPTY: 'Please place all your ships before starting the game.'
+    FIRST_TURN: {
+      PLAYER1: 'You go first! Launch your attack!',
+      PLAYER2: 'The computer takes the first move. Stay sharp.'
+    },
+    TURN: {
+      PLAYER1: 'Your turn to attack!',
+      PLAYER2: 'Computer’s turn to attack.'
+    },
+    VICTORY: {
+      PLAYER1: 'You’ve sunk the enemy fleet. Victory is yours!',
+      PLAYER2: 'All your ships have been destroyed. Defeat!'
+    },
+    ERROR_DOCK_NOT_EMPTY: {
+      PLAYER1: 'Please place all your ships before starting the game.'
+    },
+    STATUS_READY: {
+      PLAYER1: 'Place your ships and click start when ready'
+    }
   },
   twoPlayer: {
-    TURN_ORDER_P1: 'Player 1 goes first! Launch your attack!',
-    TURN_ORDER_P2: 'Player 2 takes the first move. Get ready!',
-    TURN_P1: 'Player 1: It’s your turn to attack!',
-    TURN_P2: 'Player 2: It’s your turn to attack!',
-    VICTORY_P1: 'Player 1 has defeated Player 2’s fleet. Congratulations!',
-    VICTORY_P2: 'Player 2 has defeated Player 1’s fleet. Congratulations!',
-    ERROR_DOCK_NOT_EMPTY: 'Player must place all their ships on the board.',
-    STATUS_READY: 'Place your ships and confirm when ready.'
+    FIRST_TURN: {
+      PLAYER1: 'Player 1 goes first! Launch your attack!',
+      PLAYER2: 'Player 2 takes the first move. Get ready!'
+    },
+    TURN: {
+      PLAYER1: 'Player 1: It’s your turn to attack!',
+      PLAYER2: 'Player 2: It’s your turn to attack!'
+    },
+    VICTORY: {
+      PLAYER1: 'Player 1 has defeated Player 2’s fleet. Congratulations!',
+      PLAYER2: 'Player 2 has defeated Player 1’s fleet. Congratulations!'
+    },
+    ERROR_DOCK_NOT_EMPTY: {
+      PLAYER1: 'Player 1 must place all their ships on the board.',
+      PLAYER2: 'Player 2 must place all their ships on the board.'
+    },
+    STATUS_READY: {
+      PLAYER1: 'Player 1: Place your ships and confirm when ready.',
+      PLAYER2: 'Player 2: Place your ships and confirm when ready.'
+    }
   }
 };
 
@@ -130,7 +153,7 @@ const startPlacementStep = (isSinglePlayer) => {
 
 const confirmPlacement = () => {
   if (!isDockEmpty()) {
-    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY);
+    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY[getPlayerKey(currentPlacementPlayer)]);
     return false;
   }
   return true;
@@ -148,7 +171,7 @@ const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onRese
   enableShipPlacement(player, playerBoardElement);
   enableShipRotation(player, playerBoardElement, attemptToRotateShip);
   if (!currentPlacementPlayer.isComputer) {
-    displayGameMessage(MESSAGES[gameState.gameMode].STATUS_READY);
+    displayGameMessage(MESSAGES[gameState.gameMode].STATUS_READY[getPlayerKey(currentPlacementPlayer)]);
   }
 };
 
@@ -262,7 +285,7 @@ const startGame = () => {
   showPlayerBoard(player1BoardElement);
 
   if (!isDockEmpty()) {
-    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY);
+    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY[getPlayerKey(currentPlacementPlayer)]);
     return;
   }
 
@@ -278,22 +301,14 @@ const startGame = () => {
     renderPlayerBoard(player1, player1BoardElement);
     setupComputerGameboard();
     initializeAi(gameState, player2, player1, player1BoardElement, gameOver);
-    displayGameMessage(
-      gameState.currentTurn === player1.id
-        ? MESSAGES[gameState.gameMode].TURN_ORDER_P1
-        : MESSAGES[gameState.gameMode].TURN_ORDER_P2
-    );
+    displayGameMessage(MESSAGES[gameState.gameMode].FIRST_TURN[getPlayerKey(gameState.currentTurn)]);
   } else {
     renderPlayerBoard(player1, player1BoardElement, false);
     renderPlayerBoard(player2, player2BoardElement, false);
     enableAttackableBoards(player1, player1, player2, player1BoardElement, player2BoardElement);
     enableAttackableBoards(player2, player1, player2, player1BoardElement, player2BoardElement);
 
-    displayGameMessage(
-      gameState.currentTurn === player1.id
-        ? MESSAGES[gameState.gameMode].TURN_P1
-        : MESSAGES[gameState.gameMode].TURN_P2
-    );
+    displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(gameState.currentTurn)]);
   }
 
   setupAttackListeners();
@@ -360,16 +375,12 @@ export const handleTurn = () => {
 
   if (currentPlayer.isComputer) {
     if (!gameState.isFirstTurn) {
-      displayGameMessage(MESSAGES[gameState.gameMode].TURN_P2);
+      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(currentPlayer)]);
     }
     scheduleAiTurn(executeAiTurn);
   } else {
     if (!gameState.isFirstTurn) {
-      displayGameMessage(
-        gameState.currentTurn === player1.id
-          ? MESSAGES[gameState.gameMode].TURN_P1
-          : MESSAGES[gameState.gameMode].TURN_P2
-      );
+      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(currentPlayer)]);
     }
   }
 
@@ -443,18 +454,14 @@ const gameOver = () => {
 
   cancelAiTimer();
   if (player2.isComputer) {
-    displayGameMessage(gameState.winner === 'player1'
-      ? MESSAGES[gameState.gameMode].VICTORY
-      : MESSAGES[gameState.gameMode].DEFEAT
-    );
+    displayGameMessage(MESSAGES[gameState.gameMode].VICTORY[getPlayerKey(gameState.winner)]);
   } else {
-    displayGameMessage(gameState.winner === 'player1'
-      ? MESSAGES[gameState.gameMode].VICTORY
-      : MESSAGES[gameState.gameMode].DEFEAT
-    );
+    displayGameMessage(MESSAGES[gameState.gameMode].VICTORY[getPlayerKey(gameState.winner)]);
   }
 
   clearAllBoardStates();
   player2BoardElement.style.pointerEvents = 'none';
   renderPlayerBoard(player2, player2BoardElement);
 };
+
+const getPlayerKey = (player) => player === player1 ? 'PLAYER1' : 'PLAYER2';
