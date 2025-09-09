@@ -264,8 +264,8 @@ export const createStartGameButton = (mode, onClickHandler) => {
 export const createNewGameButton = (onClickHandler) =>
   createButton('New Game', 'new-game', onClickHandler);
 
+const messageContainerElement = document.querySelector('.main-container__message');
 export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
-  const messageContainerElement = document.querySelector('.main-container__message');
   const message = document.createElement('p');
   messageContainerElement.innerHTML = '';
   message.textContent = gameMessage;
@@ -384,11 +384,17 @@ export const renderGameModeSelection = (onModeSelect) => {
   ['1-Player', '2-Player'].forEach(mode => {
     const button = createButton(mode, `${mode.toLowerCase()}`, () => {
       modeContainer.remove();
+      removeMainTitle();
       onModeSelect(mode === '1-Player');
     });
     modeContainer.appendChild(button);
   });
   mainContainerElement.append(modeContainer);
+};
+
+const removeMainTitle = () => {
+  const header = document.querySelector('.main-title');
+  if (header) header.remove();
 };
 
 export const showPlayerBoard = (boardElement) => {
