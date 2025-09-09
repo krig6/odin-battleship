@@ -1,6 +1,7 @@
 export const player1BoardElement = document.querySelector('[data-player="1"]');
 export const player2BoardElement = document.querySelector('[data-player="2"]');
 export const mainContainerElement = document.querySelector('.main-container');
+const messageContainerElement = document.querySelector('.main-container__message');
 
 export const uiState = {
   player1ClickHandler: null,
@@ -264,7 +265,6 @@ export const createStartGameButton = (mode, onClickHandler) => {
 export const createNewGameButton = (onClickHandler) =>
   createButton('New Game', 'new-game', onClickHandler);
 
-const messageContainerElement = document.querySelector('.main-container__message');
 export const displayGameMessage = (gameMessage = 'Drag and place your ships.') => {
   const message = document.createElement('p');
   messageContainerElement.innerHTML = '';
