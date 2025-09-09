@@ -44,6 +44,7 @@ const FLEET_CONFIG = [
 ];
 
 const gameState = {
+  gameMode: null,
   currentTurn: null,
   isFirstTurn: true,
   isGameOver: false,
@@ -51,13 +52,25 @@ const gameState = {
 };
 
 export const MESSAGES = {
-  PLAYER1_TURN_FIRST: 'You go first! Launch your attack!',
-  PLAYER2_TURN_FIRST: 'Enemy has the initiative. Stay sharp.',
-  OPPONENT_TURN: 'Opponent\'s turn.',
-  YOUR_TURN: 'Your turn.',
-  VICTORY: 'You’ve sunk the enemy fleet. Victory is yours!',
-  DEFEAT: 'All your ships have been destroyed. Defeat!',
-  DOCK_NOT_EMPTY: 'Please place all your ships before starting the game.'
+  onePlayer: {
+    TURN_ORDER_P1: 'You go first! Launch your attack!',
+    TURN_ORDER_P2: 'The computer takes the first move. Stay sharp.',
+    TURN_P1: 'Your turn to attack!',
+    TURN_P2: 'Computer’s turn to attack.',
+    VICTORY: 'You’ve sunk the enemy fleet. Victory is yours!',
+    DEFEAT: 'All your ships have been destroyed. Defeat!',
+    ERROR_DOCK_NOT_EMPTY: 'Please place all your ships before starting the game.'
+  },
+  twoPlayer: {
+    TURN_ORDER_P1: 'Player 1 goes first! Launch your attack!',
+    TURN_ORDER_P2: 'Player 2 takes the first move. Get ready!',
+    TURN_P1: 'Player 1: It’s your turn to attack!',
+    TURN_P2: 'Player 2: It’s your turn to attack!',
+    VICTORY_P1: 'Player 1 has defeated Player 2’s fleet. Congratulations!',
+    VICTORY_P2: 'Player 2 has defeated Player 1’s fleet. Congratulations!',
+    ERROR_DOCK_NOT_EMPTY: 'Player must place all their ships on the board.',
+    STATUS_READY: 'Place your ships and confirm when ready.'
+  }
 };
 
 const createFleet = (player, fleetData = FLEET_CONFIG) => {
@@ -72,10 +85,14 @@ const createFleet = (player, fleetData = FLEET_CONFIG) => {
 };
 
 export const setupGame = (isSinglePlayer) => {
+  gameState.gameMode = isSinglePlayer
+    ? 'onePlayer'
+    : 'twoPlayer';
   const gameContainerElement = document.querySelector('.main-container__game');
-  gameContainerElement.classList.add(isSinglePlayer
-    ? 'one-player-mode'
-    : 'two-player-mode'
+  gameContainerElement.classList.add(
+    gameState.gameMode === 'onePlayer'
+      ? 'one-player-mode'
+      : 'two-player-mode'
   );
 
   player2 = isSinglePlayer
@@ -90,6 +107,7 @@ export const setupGame = (isSinglePlayer) => {
 };
 
 const startPlacementStep = (isSinglePlayer) => {
+  gameState.gameMode = isSinglePlayer ? 'onePlayer' : 'twoPlayer';
   prepareFleetPlacement({
     player: currentPlacementPlayer,
     playerBoardElement: currentPlacementPlayer === player1 ? player1BoardElement : player2BoardElement,
@@ -97,36 +115,40 @@ const startPlacementStep = (isSinglePlayer) => {
     onReset: () => resetBoard(currentPlacementPlayer, () => startPlacementStep(isSinglePlayer)),
     onStart: () => {
       if (!isSinglePlayer && currentPlacementPlayer === player1) {
+        if (!confirmPlacement()) return;
         currentPlacementPlayer = player2;
         startPlacementStep(isSinglePlayer);
       } else {
+        if (!confirmPlacement()) return;
         startGame();
       }
     },
-    mode: isSinglePlayer ? '1-Player' : '2-Player',
+    gameMode: gameState.gameMode === 'onePlayer' ? 'onePlayer' : 'twoPlayer',
     hideOtherBoard: currentPlacementPlayer === player1 ? player2BoardElement : player1BoardElement
   });
 };
 
-const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onReset, onStart, mode, hideOtherBoard }) => {
+const confirmPlacement = () => {
+  if (!isDockEmpty()) {
+    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY);
+    return false;
+  }
+  return true;
+};
+
+const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onReset, onStart, gameMode, hideOtherBoard }) => {
   if (hideOtherBoard) hidePlayerBoard(hideOtherBoard);
   showPlayerBoard(playerBoardElement);
 
   removeDockContainer();
   const fleet = createFleet(player);
   renderPlayerBoard(player, playerBoardElement);
-  renderDockContainer(fleet, onRandomize, onReset, onStart, player, playerBoardElement, mode);
+  renderDockContainer(fleet, onRandomize, onReset, onStart, player, playerBoardElement, gameMode);
 
   enableShipPlacement(player, playerBoardElement);
   enableShipRotation(player, playerBoardElement, attemptToRotateShip);
-  if (currentPlacementPlayer.isComputer) {
-    displayGameMessage();
-  } else {
-    displayGameMessage(
-      currentPlacementPlayer === player1
-        ? 'Player 1: Place your ships and confirm when ready.'
-        : 'Player 2: Place your ships and confirm when ready.'
-    );
+  if (!currentPlacementPlayer.isComputer) {
+    displayGameMessage(MESSAGES[gameState.gameMode].STATUS_READY);
   }
 };
 
@@ -240,7 +262,7 @@ const startGame = () => {
   showPlayerBoard(player1BoardElement);
 
   if (!isDockEmpty()) {
-    displayGameMessage(MESSAGES.DOCK_NOT_EMPTY);
+    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY);
     return;
   }
 
@@ -258,8 +280,8 @@ const startGame = () => {
     initializeAi(gameState, player2, player1, player1BoardElement, gameOver);
     displayGameMessage(
       gameState.currentTurn === player1.id
-        ? MESSAGES.PLAYER1_TURN_FIRST
-        : MESSAGES.PLAYER2_TURN_FIRST
+        ? MESSAGES[gameState.gameMode].TURN_ORDER_P1
+        : MESSAGES[gameState.gameMode].TURN_ORDER_P2
     );
   } else {
     renderPlayerBoard(player1, player1BoardElement, false);
@@ -269,8 +291,8 @@ const startGame = () => {
 
     displayGameMessage(
       gameState.currentTurn === player1.id
-        ? 'Player 1: You go first.'
-        : 'Player 2: You go first.'
+        ? MESSAGES[gameState.gameMode].TURN_P1
+        : MESSAGES[gameState.gameMode].TURN_P2
     );
   }
 
@@ -338,15 +360,15 @@ export const handleTurn = () => {
 
   if (currentPlayer.isComputer) {
     if (!gameState.isFirstTurn) {
-      displayGameMessage(MESSAGES.OPPONENT_TURN);
+      displayGameMessage(MESSAGES[gameState.gameMode].TURN_P2);
     }
     scheduleAiTurn(executeAiTurn);
   } else {
     if (!gameState.isFirstTurn) {
       displayGameMessage(
         gameState.currentTurn === player1.id
-          ? 'Player 1: It\'s your turn.'
-          : 'Player 2: It\'s your turn.'
+          ? MESSAGES[gameState.gameMode].TURN_P1
+          : MESSAGES[gameState.gameMode].TURN_P2
       );
     }
   }
@@ -422,14 +444,13 @@ const gameOver = () => {
   cancelAiTimer();
   if (player2.isComputer) {
     displayGameMessage(gameState.winner === 'player1'
-      ? MESSAGES.VICTORY
-      : MESSAGES.DEFEAT
+      ? MESSAGES[gameState.gameMode].VICTORY
+      : MESSAGES[gameState.gameMode].DEFEAT
     );
   } else {
-    displayGameMessage(
-      gameState.currentTurn === player1.id
-        ? 'Onalaps si Player 1!'
-        : 'Onalaps si Player 2!'
+    displayGameMessage(gameState.winner === 'player1'
+      ? MESSAGES[gameState.gameMode].VICTORY
+      : MESSAGES[gameState.gameMode].DEFEAT
     );
   }
 

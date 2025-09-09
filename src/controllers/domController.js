@@ -38,7 +38,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   }
 };
 
-export const renderDockContainer = (fleet, onRandomize, onReset, startGame, player, playerBoardElement, mode = '1Player') => {
+export const renderDockContainer = (fleet, onRandomize, onReset, startGame, player, playerBoardElement, gameMode = 'onePlayer') => {
   const gameContainer = document.querySelector('.main-container__game');
   const dockContainer = document.createElement('div');
   dockContainer.classList.add('dock-container');
@@ -49,7 +49,7 @@ export const renderDockContainer = (fleet, onRandomize, onReset, startGame, play
   dockActions.append(
     createRandomizeButton(onRandomize),
     createResetButton(onReset),
-    createStartGameButton(mode, startGame)
+    createStartGameButton(gameMode, startGame)
   );
 
   dockContainer.append(dockShipyard, dockActions);
@@ -257,8 +257,8 @@ export const createRandomizeButton = (onClickHandler) =>
 export const createResetButton = (onClickHandler) =>
   createButton('Reset', 'reset', onClickHandler);
 
-export const createStartGameButton = (mode, onClickHandler) => {
-  const label = mode === '1-Player' ? 'Start' : 'Confirm';
+export const createStartGameButton = (gameMode, onClickHandler) => {
+  const label = gameMode === 'onePlayer' ? 'Start' : 'Confirm';
   return createButton(label, 'start-game', onClickHandler);
 };
 
@@ -378,18 +378,18 @@ export const disableShipPlacement = (playerBoardElement) => {
 };
 
 export const renderGameModeSelection = (onModeSelect) => {
-  const modeContainer = document.createElement('div');
-  modeContainer.classList.add('main-container__mode-select');
+  const gameModeContainer = document.createElement('div');
+  gameModeContainer.classList.add('main-container__game-mode-select');
 
-  ['1-Player', '2-Player'].forEach(mode => {
-    const button = createButton(mode, `${mode.toLowerCase()}`, () => {
-      modeContainer.remove();
+  ['1-Player', '2-Player'].forEach(modeLabel => {
+    const button = createButton(modeLabel, `${modeLabel.toLowerCase()}`, () => {
+      gameModeContainer.remove();
       removeMainTitle();
-      onModeSelect(mode === '1-Player');
+      onModeSelect(modeLabel === '1-Player');
     });
-    modeContainer.appendChild(button);
+    gameModeContainer.appendChild(button);
   });
-  mainContainerElement.append(modeContainer);
+  mainContainerElement.append(gameModeContainer);
 };
 
 const removeMainTitle = () => {

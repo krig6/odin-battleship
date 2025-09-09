@@ -558,7 +558,7 @@ body::after {
   }
 }
 
-.main-container__mode-select {
+.main-container__game-mode-select {
   display: flex;
   flex-direction: column;
   gap: 1rem;
