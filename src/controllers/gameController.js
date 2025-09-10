@@ -82,8 +82,8 @@ export const MESSAGES = {
       PLAYER2: 'Player 2: It’s your turn to attack!'
     },
     VICTORY: {
-      PLAYER1: 'Player 1 has defeated Player 2’s fleet. Congratulations!',
-      PLAYER2: 'Player 2 has defeated Player 1’s fleet. Congratulations!'
+      PLAYER1: 'Player 1 has sunk Player 2’s fleet. Congratulations!',
+      PLAYER2: 'Player 2 has sunk Player 1’s fleet. Congratulations!'
     },
     ERROR_DOCK_NOT_EMPTY: {
       PLAYER1: 'Player 1 must place all their ships on the board.',
@@ -91,7 +91,7 @@ export const MESSAGES = {
     },
     STATUS_READY: {
       PLAYER1: 'Player 1: Place your ships and confirm when ready.',
-      PLAYER2: 'Player 2: Place your ships and confirm when ready.'
+      PLAYER2: 'Player 2: Place your ships and start when ready.'
     }
   }
 };
@@ -131,6 +131,7 @@ export const setupGame = (isSinglePlayer) => {
 
 const startPlacementStep = (isSinglePlayer) => {
   gameState.gameMode = isSinglePlayer ? 'onePlayer' : 'twoPlayer';
+
   prepareFleetPlacement({
     player: currentPlacementPlayer,
     playerBoardElement: currentPlacementPlayer === player1 ? player1BoardElement : player2BoardElement,
@@ -153,7 +154,7 @@ const startPlacementStep = (isSinglePlayer) => {
 
 const confirmPlacement = () => {
   if (!isDockEmpty()) {
-    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY[getPlayerKey(currentPlacementPlayer)]);
+    displayGameMessage(MESSAGES[gameState.gameMode].ERROR_DOCK_NOT_EMPTY[getPlayerKey(currentPlacementPlayer.id)]);
     return false;
   }
   return true;
@@ -171,7 +172,7 @@ const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onRese
   enableShipPlacement(player, playerBoardElement);
   enableShipRotation(player, playerBoardElement, attemptToRotateShip);
   if (!currentPlacementPlayer.isComputer) {
-    displayGameMessage(MESSAGES[gameState.gameMode].STATUS_READY[getPlayerKey(currentPlacementPlayer)]);
+    displayGameMessage(MESSAGES[gameState.gameMode].STATUS_READY[getPlayerKey(currentPlacementPlayer.id)]);
   }
 };
 
@@ -375,12 +376,12 @@ export const handleTurn = () => {
 
   if (currentPlayer.isComputer) {
     if (!gameState.isFirstTurn) {
-      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(currentPlayer)]);
+      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(gameState.currentTurn)]);
     }
     scheduleAiTurn(executeAiTurn);
   } else {
     if (!gameState.isFirstTurn) {
-      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(currentPlayer)]);
+      displayGameMessage(MESSAGES[gameState.gameMode].TURN[getPlayerKey(gameState.currentTurn)]);
     }
   }
 
@@ -464,4 +465,4 @@ const gameOver = () => {
   renderPlayerBoard(player2, player2BoardElement);
 };
 
-const getPlayerKey = (player) => player === player1 ? 'PLAYER1' : 'PLAYER2';
+const getPlayerKey = (player) => player === player1.id ? 'PLAYER1' : 'PLAYER2';
