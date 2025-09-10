@@ -49,7 +49,7 @@ export const renderDockContainer = (fleet, onRandomize, onReset, startGame, play
   dockActions.append(
     createRandomizeButton(onRandomize),
     createResetButton(onReset),
-    createStartGameButton(gameMode, startGame)
+    createStartGameButton(player, gameMode, startGame)
   );
 
   dockContainer.append(dockShipyard, dockActions);
@@ -257,8 +257,11 @@ export const createRandomizeButton = (onClickHandler) =>
 export const createResetButton = (onClickHandler) =>
   createButton('Reset', 'reset', onClickHandler);
 
-export const createStartGameButton = (gameMode, onClickHandler) => {
-  const label = gameMode === 'onePlayer' ? 'Start' : 'Confirm';
+export const createStartGameButton = (player, gameMode, onClickHandler) => {
+  const label =
+    gameMode !== 'onePlayer' && player.id === 'player1'
+      ? 'Confirm'
+      : 'Start';
   return createButton(label, 'start-game', onClickHandler);
 };
 
