@@ -38,7 +38,7 @@ export const renderPlayerBoard = (player, boardElement, revealShips = true) => {
   }
 };
 
-export const renderDockContainer = (fleet, onRandomize, onReset, startGame, player, playerBoardElement, gameMode = 'onePlayer') => {
+export const renderDockContainer = (fleet, onRandomize, onReset, startGame, player, playerBoardElement, gameMode) => {
   const gameContainer = document.querySelector('.main-container__game');
   const dockContainer = document.createElement('div');
   dockContainer.classList.add('dock-container');
@@ -403,4 +403,14 @@ export const showPlayerBoard = (boardElement) => {
 
 export const hidePlayerBoard = (boardElement) => {
   if (boardElement) boardElement.style.display = 'none';
+};
+
+export const renderDockShipyard = (fleet, player, playerBoardElement) => {
+  const existingShipyard = document.querySelector('.dock-container__shipyard');
+  if (existingShipyard) existingShipyard.remove();
+
+  const dockActions = document.querySelector('.dock-container__actions');
+  const newDockShipyard = createDockShipyard(fleet, player, playerBoardElement);
+
+  dockActions.before(newDockShipyard);
 };

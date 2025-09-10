@@ -21,7 +21,8 @@ import {
   enableShipPlacement,
   disableShipPlacement,
   hidePlayerBoard,
-  showPlayerBoard
+  showPlayerBoard,
+  renderDockShipyard
 } from './domController.js';
 
 import {
@@ -136,7 +137,7 @@ const startPlacementStep = (isSinglePlayer) => {
     player: currentPlacementPlayer,
     playerBoardElement: currentPlacementPlayer === player1 ? player1BoardElement : player2BoardElement,
     onRandomize: () => randomizePlayerPlacement(currentPlacementPlayer),
-    onReset: () => resetBoard(currentPlacementPlayer, () => startPlacementStep(isSinglePlayer)),
+    onReset: () => resetBoard(currentPlacementPlayer),
     onStart: () => {
       if (!isSinglePlayer && currentPlacementPlayer === player1) {
         if (!confirmPlacement()) return;
@@ -261,23 +262,17 @@ const randomizeComputerPlacement = () => {
   autoPlaceFleet(player2, player2BoardElement);
 };
 
-const resetBoard = (player, callback) => {
-  const playerBoardElement = player === player1 ? player1BoardElement : player2BoardElement;
+const resetBoard = (player) => {
+  if (!isDockEmpty()) return;
+
+  const playerBoardElement = player.id === player1.id ? player1BoardElement : player2BoardElement;
 
   player.gameboard.reset();
 
-  removeDockContainer();
-
   renderPlayerBoard(player, playerBoardElement);
+
   const fleet = createFleet(player);
-  renderDockContainer(
-    fleet,
-    () => randomizePlayerPlacement(player, playerBoardElement),
-    () => resetBoard(player, callback),
-    callback,
-    player,
-    playerBoardElement
-  );
+  renderDockShipyard(fleet, player, playerBoardElement);
 
   gameState.isFirstTurn = true;
 };
