@@ -13,7 +13,6 @@ import {
   removeDraggableShips,
   isDockEmpty,
   uiState,
-  removeNewGameButton,
   clearAllBoardStates,
   enableAttackableBoards,
   enableShipRotation,
@@ -22,7 +21,9 @@ import {
   disableShipPlacement,
   hidePlayerBoard,
   showPlayerBoard,
-  renderDockShipyard
+  renderDockShipyard,
+  renderGameModeSelection,
+  resetGameUI
 } from './domController.js';
 
 import {
@@ -128,6 +129,8 @@ export const setupGame = (isSinglePlayer) => {
   hidePlayerBoard(player2BoardElement);
 
   startPlacementStep(isSinglePlayer);
+
+  mainContainerElement.append(createNewGameButton(newGame));
 };
 
 const startPlacementStep = (isSinglePlayer) => {
@@ -309,7 +312,6 @@ const startGame = () => {
 
   setupAttackListeners();
   handleTurn();
-  mainContainerElement.appendChild(createNewGameButton(newGame));
 };
 
 const setupAttackListeners = () => {
@@ -338,18 +340,15 @@ const resetGameState = () => {
   gameState.isGameOver = false;
 };
 
-const newGame = () => {
+export const newGame = () => {
   resetGameState();
   resetAiState();
-
-  hidePlayerBoard(player2BoardElement);
-
-  clearAllBoardStates();
+  resetGameUI()
 
   player1.gameboard.reset();
   player2.gameboard.reset();
 
-  removeNewGameButton();
+  renderGameModeSelection(setupGame)
 };
 
 export const handleTurn = () => {
