@@ -396,8 +396,18 @@ export const renderGameModeSelection = (onModeSelect) => {
 };
 
 const removeMainTitle = () => {
-  const header = document.querySelector('.main-title');
-  if (header) header.remove();
+  const mainTitleElement = document.querySelector('.main-title');
+  if (mainTitleElement) mainTitleElement.remove();
+};
+
+const renderMainTitle = () => {
+  let mainTitleElement = document.querySelector('.main-title')
+  if (!mainTitleElement) {
+    mainTitleElement = document.createElement('header')
+    mainTitleElement.classList.add('main-title')
+    document.body.prepend(mainTitleElement)
+  }
+  mainTitleElement.innerHTML = 'Battleship'
 };
 
 const clearGameMessage = () => {
