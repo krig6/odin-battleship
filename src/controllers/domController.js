@@ -400,6 +400,10 @@ const removeMainTitle = () => {
   if (header) header.remove();
 };
 
+const clearGameMessage = () => {
+  messageContainerElement.innerHTML = ""
+}
+
 export const showPlayerBoard = (boardElement) => {
   if (boardElement) boardElement.style.display = 'grid';
 };
