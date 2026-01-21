@@ -414,6 +414,19 @@ const clearGameMessage = () => {
   messageContainerElement.innerHTML = ""
 }
 
+export const resetGameUI = () => {
+  hidePlayerBoard(player1BoardElement)
+  hidePlayerBoard(player2BoardElement)
+
+  clearAllBoardStates()
+  clearGameMessage()
+
+  removeDockContainer()
+  removeNewGameButton()
+
+  renderMainTitle()
+}
+
 export const showPlayerBoard = (boardElement) => {
   if (boardElement) boardElement.style.display = 'grid';
 };
