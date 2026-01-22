@@ -455,6 +455,7 @@ const gameOver = () => {
   }
 
   clearAllBoardStates();
+  renderPlayerBoard(player1, player1BoardElement);
   renderPlayerBoard(player2, player2BoardElement);
 };
 
