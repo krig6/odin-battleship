@@ -268,7 +268,6 @@ const randomizeComputerPlacement = () => {
 };
 
 const resetBoard = (player) => {
-  if (!isDockEmpty()) return;
 
   const playerBoardElement = player.id === player1.id ? player1BoardElement : player2BoardElement;
 
