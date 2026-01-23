@@ -181,6 +181,8 @@ const prepareFleetPlacement = ({ player, playerBoardElement, onRandomize, onRese
 };
 
 const attemptToRotateShip = (gameboard, shipId) => {
+  if (gameState.isGameOver) return
+
   const board = gameboard.board;
 
   const shipCells = [...gameboard.shipPositions]
