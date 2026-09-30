@@ -158,23 +158,31 @@ const getRemainingShipSizes = () => {
 };
 
 const canFitAnyShip = (row, col, shipSizes) => {
+  if (shipSizes.includes(1)) {
+    return true;
+  }
+
   const boardSize = 10;
   for (const size of shipSizes) {
     let horizontalFit = true;
     let verticalFit = true;
 
     for (let offset = 0; offset < size; offset++) {
+      const hCol = col + offset;
+      const vRow = row + offset;
+
       if (
-        col + size > boardSize ||
-        defender.gameboard.successfulHits.has(`${row},${col + offset}`) ||
-        defender.gameboard.missedShots.has(`${row},${col + offset}`)
+        hCol >= boardSize ||
+        defender.gameboard.successfulHits.has(`${row},${hCol}`) ||
+        defender.gameboard.missedShots.has(`${row},${hCol}`)
       ) {
         horizontalFit = false;
       }
+
       if (
-        row + size > boardSize ||
-        defender.gameboard.successfulHits.has(`${row + offset},${col}`) ||
-        defender.gameboard.missedShots.has(`${row + offset},${col}`)
+        vRow >= boardSize ||
+        defender.gameboard.successfulHits.has(`${vRow},${col}`) ||
+        defender.gameboard.missedShots.has(`${vRow},${col}`)
       ) {
         verticalFit = false;
       }
@@ -182,6 +190,6 @@ const canFitAnyShip = (row, col, shipSizes) => {
 
     if (horizontalFit || verticalFit) return true;
   }
+
   return false;
 };
-
