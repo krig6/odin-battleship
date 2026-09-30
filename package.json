@@ -1,5 +1,5 @@
 {
-  "name": "my-webpack-template",
+  "name": "odin-battleship",
   "version": "1.0.0",
   "description": "Classic Battleship game built using Test-Driven Development (TDD) with JavaScript",
   "type": "module",
